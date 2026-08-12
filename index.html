@@ -107,14 +107,12 @@
             user-select: none;
         }
 
-        /* Canvas dell'anteprima (quello su cui clicchi per il watermark) */
         #previewCanvas {
             max-width: 100%;
             display: block;
-            cursor: crosshair; /* Cursore a croce per indicare il posizionamento */
+            cursor: crosshair;
         }
 
-        /* Nascondiamo l'img originale mentre cropper lavora sul canvas */
         #imageToCrop {
             display: none; 
         }
@@ -308,14 +306,12 @@
         <!-- Pannello Editor -->
         <div id="editorPanel" class="editor-panel">
             <div class="img-container" id="imageContainer">
-                <!-- Immagine nascosta usata da Cropper -->
                 <img id="imageToCrop" alt="Immagine da modificare">
-                <!-- Canvas visibile su cui applichiamo filtri e watermark -->
                 <canvas id="previewCanvas"></canvas>
             </div>
 
             <div id="magicInstruction" class="instruction-box">
-                🪄 **Pennello Magico Attivo:** Trascina il mouse per cancellare! Clicca di nuovo sul tasto viola per tornare ai controlli.
+                🪄 <b>Pennello Magico Attivo:</b> Trascina il mouse per cancellare! Clicca di nuovo sul tasto viola per tornare ai controlli.
             </div>
 
             <!-- Informazioni live -->
@@ -330,10 +326,8 @@
                     <button class="btn-tool" onclick="resetEditor()">❌ Reset Tutto</button>
                 </div>
 
-                <!-- Attivazione Pennello Magico -->
                 <button class="btn-magic" onclick="toggleMagicBrush()">🪄 Attiva Pennello Cancella Sfondo</button>
 
-                <!-- Regolazioni Colore -->
                 <div class="section-title">🎨 Regolazioni Colore (Globale)</div>
                 
                 <div class="control-group">
@@ -351,7 +345,6 @@
                     <input type="range" id="saturationInput" min="0" max="200" value="100" oninput="applyEditorChanges()">
                 </div>
 
-                <!-- Filigrana / Watermark Testuale -->
                 <div class="section-title">✍️ Filigrana (Watermark)</div>
 
                 <div class="control-group">
@@ -365,7 +358,6 @@
                     <input type="color" id="watermarkColor" value="#ffffff" onchange="applyEditorChanges()">
                 </div>
 
-                <!-- Parametri generali -->
                 <div class="section-title">⚙️ Esportazione</div>
 
                 <div class="control-group">
@@ -388,7 +380,6 @@
                 </div>
             </div>
 
-            <!-- Pulsante Conferma -->
             <button class="btn-confirm" onclick="confirmFinalImage()">✅ Conferma e genera finale</button>
         </div>
 
@@ -406,11 +397,178 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
         let cropper = null;
-        let originalFileName = '';
+        let originalFileName = 'immagine';
         let magicBrushActive = false;
         let isDrawing = false;
 
-        // Variabili per gestire il canvas principale e il posizionamento del watermark
         let pCanvas = document.getElementById('previewCanvas');
         let pCtx = pCanvas.getContext('2d');
-        let watermarkX = -1; //
+        let watermarkX = -1;
+        let watermarkY = -1;
+
+        function handleImage(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                originalFileName = file.name.substring(0, file.name.lastIndexOf('.')) || 'immagine';
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('imageToCrop');
+                    img.src = e.target.result;
+                    img.onload = function() {
+                        document.getElementById('dropZone').style.display = 'none';
+                        document.getElementById('editorPanel').style.display = 'block';
+                        
+                        if (cropper) {
+                            cropper.destroy();
+                        }
+                        
+                        cropper = new Cropper(img, {
+                            aspectRatio: NaN,
+                            viewMode: 1,
+                            autoCrop: false,
+                            ready: function() {
+                                applyEditorChanges();
+                            }
+                        });
+                    }
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function applyEditorChanges() {
+            if (!cropper) return;
+
+            const canvas = cropper.getCroppedCanvas();
+            if (!canvas) return;
+
+            pCanvas.width = canvas.width;
+            pCanvas.height = canvas.height;
+
+            const bright = document.getElementById('brightnessInput').value;
+            const contrast = document.getElementById('contrastInput').value;
+            const sat = document.getElementById('saturationInput').value;
+
+            document.getElementById('brightVal').innerText = bright;
+            document.getElementById('contrastVal').innerText = contrast;
+            document.getElementById('satVal').innerText = sat;
+
+            pCtx.filter = `brightness(${bright}%) contrast(${contrast}%) saturate(${sat}%)`;
+            pCtx.drawImage(canvas, 0, 0);
+            pCtx.filter = 'none';
+
+            // Disegna watermark se impostato
+            const wText = document.getElementById('watermarkText').value;
+            if (wText) {
+                pCtx.fillStyle = document.getElementById('watermarkColor').value;
+                pCtx.font = `${Math.max(16, pCanvas.width / 25)}px sans-serif`;
+                pCtx.shadowColor = 'rgba(0,0,0,0.8)';
+                pCtx.shadowBlur = 4;
+                
+                if (watermarkX === -1 || watermarkY === -1) {
+                    watermarkX = pCanvas.width - 150;
+                    watermarkY = pCanvas.height - 40;
+                }
+                pCtx.fillText(wText, watermarkX, watermarkY);
+                pCtx.shadowBlur = 0;
+            }
+
+            updateLiveStats();
+        }
+
+        pCanvas.addEventListener('click', function(e) {
+            if (!magicBrushActive && cropper) {
+                const rect = pCanvas.getBoundingClientRect();
+                const scaleX = pCanvas.width / rect.width;
+                const scaleY = pCanvas.height / rect.height;
+                watermarkX = (e.clientX - rect.left) * scaleX;
+                watermarkY = (e.clientY - rect.top) * scaleY;
+                applyEditorChanges();
+            }
+        });
+
+        function toggleMagicBrush() {
+            magicBrushActive = !magicBrushActive;
+            const box = document.getElementById('magicInstruction');
+            box.style.display = magicBrushActive ? 'block' : 'none';
+        }
+
+        function resetEditor() {
+            document.getElementById('brightnessInput').value = 100;
+            document.getElementById('contrastInput').value = 100;
+            document.getElementById('saturationInput').value = 100;
+            document.getElementById('watermarkText').value = '';
+            watermarkX = -1;
+            watermarkY = -1;
+            magicBrushActive = false;
+            document.getElementById('magicInstruction').style.display = 'none';
+            applyEditorChanges();
+        }
+
+        function updateLiveStats() {
+            if (!pCanvas.width) return;
+            document.getElementById('dimensionInfo').innerText = `Dimensioni: ${pCanvas.width} x ${pCanvas.height} px`;
+            
+            const quality = document.getElementById('qualityInput').value / 100;
+            const format = document.getElementById('formatSelect').value;
+            const dataUrl = pCanvas.toDataURL(format, quality);
+            const sizeKB = Math.round((dataUrl.length * (3/4)) / 1024);
+            document.getElementById('sizeInfo').innerText = `Peso st.: ~${sizeKB} KB`;
+        }
+
+        function confirmFinalImage() {
+            if (!pCanvas.width) return;
+            const quality = document.getElementById('qualityInput').value / 100;
+            const format = document.getElementById('formatSelect').value;
+            const dataUrl = pCanvas.toDataURL(format, quality);
+
+            document.getElementById('finalPreviewImg').src = dataUrl;
+            
+            const ext = format.split('/')[1].replace('jpeg', 'jpg');
+            const downloadBtn = document.getElementById('downloadBtn');
+            downloadBtn.href = dataUrl;
+            downloadBtn.download = `${originalFileName}-modificato.${ext}`;
+
+            const sizeKB = Math.round((dataUrl.length * (3/4)) / 1024);
+            document.getElementById('finalStats').innerText = `Formato: ${ext.toUpperCase()} | Dimensioni: ${pCanvas.width}x${pCanvas.height}px | Peso: ~${sizeKB} KB`;
+
+            document.getElementById('editorPanel').style.display = 'none';
+            document.getElementById('resultBox').style.display = 'block';
+        }
+
+        pCanvas.addEventListener('mousedown', (e) => {
+            if (!magicBrushActive) return;
+            isDrawing = true;
+            eraseAt(e);
+        });
+
+        pCanvas.addEventListener('mousemove', (e) => {
+            if (!magicBrushActive || !isDrawing) return;
+            eraseAt(e);
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDrawing = false;
+        });
+
+        function eraseAt(e) {
+            const rect = pCanvas.getBoundingClientRect();
+            const scaleX = pCanvas.width / rect.width;
+            const scaleY = pCanvas.height / rect.height;
+            const x = (e.clientX - rect.left) * scaleX;
+            const y = (e.clientY - rect.top) * scaleY;
+            const brushSize = document.getElementById('brushSize').value * scaleX;
+
+            pCtx.save();
+            pCtx.globalCompositeOperation = 'destination-out';
+            pCtx.beginPath();
+            pCtx.arc(x, y, brushSize, 0, Math.PI * 2);
+            pCtx.fill();
+            pCtx.restore();
+            
+            updateLiveStats();
+        }
+    </script>
+</body>
+</html>
