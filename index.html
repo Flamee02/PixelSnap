@@ -3,15 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>PixelSnap - Editor Totale</title>
-
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
-          rel="stylesheet">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-base: #0f172a;
@@ -66,10 +60,6 @@
             padding: 20px;
         }
 
-        /* =========================
-           CARICAMENTO
-        ========================= */
-
         .drop-zone {
             background: var(--bg-card);
             border: 2px dashed var(--border);
@@ -93,10 +83,6 @@
             display: none;
         }
 
-        /* =========================
-           EDITOR
-        ========================= */
-
         .editor-panel {
             display: none;
             background: var(--bg-card);
@@ -105,65 +91,35 @@
             border: 1px solid var(--border);
         }
 
-        /* AREA IMMAGINE */
         .img-container {
             width: 100%;
             height: 380px;
-
             display: flex;
             align-items: center;
             justify-content: center;
-
             position: relative;
-
-            background: repeating-conic-gradient(
-                #334155 0% 25%,
-                #1e293b 0% 50%
-            );
-
+            background: repeating-conic-gradient(#334155 0% 25%, #1e293b 0% 50%);
             background-size: 16px 16px;
-
             border-radius: 10px;
             overflow: hidden;
-
             margin-bottom: 15px;
         }
 
-        /*
-         * Cropper rimane visibile sopra l'immagine.
-         * L'immagine viene centrata.
-         */
-        .cropper-container {
+        .img-container img {
             max-width: 100%;
             max-height: 100%;
         }
-
-        #imageToCrop {
-            display: block;
-            max-width: 100%;
-        }
-
-        /* =========================
-           CANVAS
-        ========================= */
 
         #previewCanvas {
             display: none;
         }
 
-        /* =========================
-           PENNELLO
-        ========================= */
-
         #brushSizeGroup {
             display: none;
-
             background: #0f172a;
             border: 1px solid var(--border);
             border-radius: 10px;
-
             padding: 12px 15px;
-
             margin-bottom: 15px;
         }
 
@@ -178,54 +134,29 @@
             margin-bottom: 8px;
         }
 
-        /* =========================
-           ISTRUZIONI
-        ========================= */
-
         .instruction-box {
             background: rgba(139, 92, 246, 0.15);
             border: 1px solid var(--purple);
-
             padding: 10px;
-
             border-radius: 8px;
-
             font-size: 0.85rem;
-
             color: #d8b4fe;
-
             text-align: center;
-
             display: none;
-
             margin-bottom: 15px;
         }
-
-        /* =========================
-           STATISTICHE
-        ========================= */
 
         .live-stats {
             background: #0f172a;
             border: 1px solid var(--border);
-
             padding: 10px 15px;
-
             border-radius: 8px;
-
             font-size: 0.85rem;
-
             color: var(--text-muted);
-
             display: flex;
             justify-content: space-between;
-
             margin-bottom: 15px;
         }
-
-        /* =========================
-           CONTROLLI
-        ========================= */
 
         .controls {
             display: flex;
@@ -240,20 +171,13 @@
 
         .btn-tool {
             flex: 1;
-
             background: #334155;
             color: white;
-
             border: none;
-
             padding: 10px;
-
             border-radius: 8px;
-
             font-weight: bold;
-
             cursor: pointer;
-
             font-size: 0.9rem;
         }
 
@@ -263,20 +187,13 @@
 
         .btn-magic {
             width: 100%;
-
             background: var(--purple);
             color: white;
-
             border: none;
-
             padding: 12px;
-
             border-radius: 10px;
-
             font-weight: bold;
-
             font-size: 0.95rem;
-
             cursor: pointer;
         }
 
@@ -286,25 +203,17 @@
 
         .section-title {
             font-size: 0.9rem;
-
             font-weight: bold;
-
             color: var(--primary);
-
             border-bottom: 1px solid var(--border);
-
             padding-bottom: 5px;
-
             margin-top: 5px;
         }
 
         .control-group label {
             display: block;
-
             font-size: 0.85rem;
-
             color: var(--text-muted);
-
             margin-bottom: 5px;
         }
 
@@ -312,63 +221,34 @@
         .control-group input[type="color"],
         .control-group select {
             width: 100%;
-
             padding: 10px;
-
             background: #0f172a;
-
             border: 1px solid var(--border);
-
             border-radius: 8px;
-
             color: white;
-
             font-family: inherit;
         }
 
-        /* =========================
-           SLIDER
-        ========================= */
-
         input[type="range"] {
             width: 100%;
-
             height: 6px;
-
             padding: 0;
-
             margin: 8px 0;
-
             cursor: pointer;
-
             accent-color: var(--primary);
         }
 
-        /* =========================
-           CONFERMA
-        ========================= */
-
         .btn-confirm {
             display: block;
-
             width: 100%;
-
             background: var(--success);
-
             color: white;
-
             border: none;
-
             padding: 14px;
-
             border-radius: 10px;
-
             font-weight: bold;
-
             font-size: 1rem;
-
             cursor: pointer;
-
             margin-top: 20px;
         }
 
@@ -376,21 +256,12 @@
             background: var(--success-hover);
         }
 
-        /* =========================
-           RISULTATO
-        ========================= */
-
         .result-box {
             display: none;
-
             background: var(--bg-card);
-
             border-radius: 16px;
-
             padding: 20px;
-
             border: 1px solid var(--border);
-
             text-align: center;
         }
 
@@ -401,44 +272,30 @@
         .result-preview img {
             max-width: 100%;
             max-height: 300px;
-
             border-radius: 8px;
-
             border: 1px solid var(--border);
         }
 
         .btn-download {
             display: block;
-
             width: 100%;
-
             background: var(--primary);
-
             color: white;
-
             padding: 14px;
-
             border-radius: 10px;
-
             font-weight: bold;
-
             text-decoration: none;
-
             margin-top: 15px;
         }
 
         .click-hint {
             font-size: 0.8rem;
-
             color: var(--text-muted);
-
             font-style: italic;
-
             margin-top: 4px;
         }
     </style>
 </head>
-
 <body>
 
 <header>
@@ -447,1319 +304,379 @@
 </header>
 
 <div class="container">
-
-    <!-- =========================
-         CARICAMENTO
-    ========================= -->
-
     <div id="dropZone" class="drop-zone">
-
-        <svg width="40"
-             height="40"
-             viewBox="0 0 24 24"
-             fill="none"
-             stroke="#3b82f6"
-             stroke-width="2"
-             stroke-linecap="round"
-             stroke-linejoin="round">
-
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-
             <polyline points="17 8 12 3 7 8"></polyline>
-
             <line x1="12" y1="3" x2="12" y2="15"></line>
-
         </svg>
-
         <p>Clicca qui o trascina un'immagine</p>
-
-        <input
-            type="file"
-            id="fileInput"
-            accept="image/*"
-        >
-
+        <input type="file" id="fileInput" accept="image/*">
     </div>
-
-
-    <!-- =========================
-         EDITOR
-    ========================= -->
 
     <div id="editorPanel" class="editor-panel">
-
-        <!-- IMMAGINE / CROPPER -->
-
         <div class="img-container">
-
-            <img
-                id="imageToCrop"
-                alt="Immagine da modificare"
-            >
-
-            <!-- Canvas finale nascosto -->
+            <img id="imageToCrop" alt="Immagine da modificare">
             <canvas id="previewCanvas"></canvas>
-
         </div>
 
-
-        <!-- ISTRUZIONI PENNELLO -->
-
-        <div
-            id="magicInstruction"
-            class="instruction-box">
-
-            🪄 <b>Pennello Magico Attivo:</b>
-            trascina il mouse sull'immagine per cancellare.
-
+        <div id="magicInstruction" class="instruction-box">
+            🪄 <b>Pennello Magico Attivo:</b> trascina il mouse sull'immagine per cancellare.
         </div>
 
-
-        <!-- =========================
-             DIMENSIONE PENNELLO
-             SOTTO L'IMMAGINE
-        ========================= -->
-
-        <div
-            id="brushSizeGroup"
-            class="control-group">
-
+        <!-- BARRA DIMENSIONE PENNELLO (Ora sotto la foto, compare solo se attivo) -->
+        <div id="brushSizeGroup" class="control-group">
             <label>
-                🪄 Dimensione Pennello:
-                <span id="brushSizeVal">20</span> px
+                🪄 Dimensione Pennello: <span id="brushSizeVal">20</span> px
             </label>
-
-            <input
-                type="range"
-                id="brushSize"
-                min="5"
-                max="100"
-                value="20"
-                step="1"
-            >
-
+            <input type="range" id="brushSize" min="5" max="100" value="20" step="1">
         </div>
-
-
-        <!-- STATISTICHE -->
 
         <div class="live-stats">
-
-            <span id="dimensionInfo">
-                Dimensioni: -- x -- px
-            </span>
-
-            <span id="sizeInfo">
-                Peso st.: -- KB
-            </span>
-
+            <span id="dimensionInfo">Dimensioni: -- x -- px</span>
+            <span id="sizeInfo">Peso st.: -- KB</span>
         </div>
-
-
-        <!-- CONTROLLI -->
 
         <div class="controls">
-
             <div class="tools-row">
-
-                <button
-                    class="btn-tool"
-                    id="rotateBtn">
-
-                    🔄 Ruota
-
-                </button>
-
-                <button
-                    class="btn-tool"
-                    id="resetBtn">
-
-                    ❌ Reset Tutto
-
-                </button>
-
+                <button class="btn-tool" id="rotateBtn">🔄 Ruota</button>
+                <button class="btn-tool" id="resetBtn">❌ Reset Tutto</button>
             </div>
 
+            <button class="btn-magic" id="magicBtn">🪄 Attiva Pennello Cancella Sfondo</button>
 
-            <button
-                class="btn-magic"
-                id="magicBtn">
-
-                🪄 Attiva Pennello Cancella Sfondo
-
-            </button>
-
-
-            <!-- COLORE -->
-
-            <div class="section-title">
-                🎨 Regolazioni Colore
-            </div>
-
+            <div class="section-title">🎨 Regolazioni Colore</div>
 
             <div class="control-group">
-
-                <label>
-                    Luminosità:
-                    <span id="brightVal">100</span>%
-                </label>
-
-                <input
-                    type="range"
-                    id="brightnessInput"
-                    min="0"
-                    max="200"
-                    value="100"
-                    step="1"
-                >
-
+                <label>Luminosità: <span id="brightVal">100</span>%</label>
+                <input type="range" id="brightnessInput" min="0" max="200" value="100" step="1">
             </div>
-
 
             <div class="control-group">
-
-                <label>
-                    Contrasto:
-                    <span id="contrastVal">100</span>%
-                </label>
-
-                <input
-                    type="range"
-                    id="contrastInput"
-                    min="0"
-                    max="200"
-                    value="100"
-                    step="1"
-                >
-
+                <label>Contrasto: <span id="contrastVal">100</span>%</label>
+                <input type="range" id="contrastInput" min="0" max="200" value="100" step="1">
             </div>
-
 
             <div class="control-group">
-
-                <label>
-                    Saturazione:
-                    <span id="satVal">100</span>%
-                </label>
-
-                <input
-                    type="range"
-                    id="saturationInput"
-                    min="0"
-                    max="200"
-                    value="100"
-                    step="1"
-                >
-
+                <label>Saturazione: <span id="satVal">100</span>%</label>
+                <input type="range" id="saturationInput" min="0" max="200" value="100" step="1">
             </div>
 
-
-            <!-- FILIGRANA -->
-
-            <div class="section-title">
-                ✍️ Filigrana
-            </div>
-
+            <div class="section-title">✍️ Filigrana</div>
 
             <div class="control-group">
-
-                <label>
-                    Testo Filigrana:
-                </label>
-
-                <input
-                    type="text"
-                    id="watermarkText"
-                    placeholder="Es: © PixelSnap"
-                >
-
-                <div class="click-hint">
-                    💡 Scrivi il testo e clicca sull'immagine per posizionarlo.
-                </div>
-
+                <label>Testo Filigrana:</label>
+                <input type="text" id="watermarkText" placeholder="Es: © PixelSnap">
+                <div class="click-hint">💡 Scrivi il testo e clicca sull'immagine per posizionarlo.</div>
             </div>
-
 
             <div class="control-group">
-
-                <label>
-                    Colore Testo:
-                </label>
-
-                <input
-                    type="color"
-                    id="watermarkColor"
-                    value="#ffffff"
-                >
-
+                <label>Colore Testo:</label>
+                <input type="color" id="watermarkColor" value="#ffffff">
             </div>
 
-
-            <!-- ESPORTAZIONE -->
-
-            <div class="section-title">
-                ⚙️ Esportazione
-            </div>
-
+            <div class="section-title">⚙️ Esportazione</div>
 
             <div class="control-group">
-
-                <label>
-                    Qualità:
-                    <span id="qualityVal">90</span>%
-                </label>
-
-                <input
-                    type="range"
-                    id="qualityInput"
-                    min="10"
-                    max="100"
-                    value="90"
-                    step="1"
-                >
-
+                <label>Qualità: <span id="qualityVal">90</span>%</label>
+                <input type="range" id="qualityInput" min="10" max="100" value="90" step="1">
             </div>
 
-
             <div class="control-group">
-
-                <label>
-                    Formato di salvataggio:
-                </label>
-
+                <label>Formato di salvataggio:</label>
                 <select id="formatSelect">
-
-                    <option value="image/jpeg">
-                        JPEG (.jpg)
-                    </option>
-
-                    <option value="image/png" selected>
-                        PNG (.png - Supporta trasparenza)
-                    </option>
-
-                    <option value="image/webp">
-                        WEBP (.webp - Super leggero)
-                    </option>
-
+                    <option value="image/jpeg">JPEG (.jpg)</option>
+                    <option value="image/png" selected>PNG (.png - Supporta trasparenza)</option>
+                    <option value="image/webp">WEBP (.webp - Super leggero)</option>
                 </select>
-
             </div>
-
         </div>
 
-
-        <button
-            class="btn-confirm"
-            id="confirmBtn">
-
-            ✅ Conferma e genera finale
-
-        </button>
-
+        <button class="btn-confirm" id="confirmBtn">✅ Conferma e genera finale</button>
     </div>
-
-
-    <!-- =========================
-         RISULTATO
-    ========================= -->
 
     <div id="resultBox" class="result-box">
-
         <h3>✨ Risultato Pronto</h3>
-
         <div class="result-preview">
-
-            <img
-                id="finalPreviewImg"
-                alt="Anteprima Finale"
-            >
-
+            <img id="finalPreviewImg" alt="Anteprima Finale">
         </div>
-
-        <div
-            id="finalStats"
-            style="font-size:0.85rem;color:var(--text-muted);margin-top:10px;">
-        </div>
-
-        <a
-            id="downloadBtn"
-            class="btn-download">
-
-            💾 Scarica Immagine Definitiva
-
-        </a>
-
+        <div id="finalStats" style="font-size:0.85rem;color:var(--text-muted);margin-top:10px;"></div>
+        <a id="downloadBtn" class="btn-download">💾 Scarica Immagine Definitiva</a>
     </div>
-
 </div>
-
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
-
 <script>
-
 let cropper = null;
-
 let originalFileName = "immagine";
-
 let magicBrushActive = false;
-
 let isDrawing = false;
-
 let watermarkX = -1;
-
 let watermarkY = -1;
 
+const pCanvas = document.getElementById("previewCanvas");
+const pCtx = pCanvas.getContext("2d");
+const dropZone = document.getElementById("dropZone");
+const fileInput = document.getElementById("fileInput");
+const editorPanel = document.getElementById("editorPanel");
+const imageToCrop = document.getElementById("imageToCrop");
 
-const pCanvas =
-    document.getElementById("previewCanvas");
-
-const pCtx =
-    pCanvas.getContext("2d");
-
-
-const dropZone =
-    document.getElementById("dropZone");
-
-const fileInput =
-    document.getElementById("fileInput");
-
-const editorPanel =
-    document.getElementById("editorPanel");
-
-const imageToCrop =
-    document.getElementById("imageToCrop");
-
-
-// =====================================================
-// CARICAMENTO
-// =====================================================
-
-dropZone.addEventListener("click", function () {
-
-    fileInput.click();
-
-});
-
-
-fileInput.addEventListener("change", function () {
-
-    handleImage(this);
-
-});
-
+dropZone.addEventListener("click", () => fileInput.click());
+fileInput.addEventListener("change", function() { handleImage(this); });
 
 function handleImage(input) {
-
-    const file =
-        input.files && input.files[0];
-
-    if (!file) {
-        return;
-    }
-
-
+    const file = input.files && input.files[0];
+    if (!file) return;
     if (!file.type.startsWith("image/")) {
-
         alert("Seleziona un file immagine.");
-
         return;
     }
+    originalFileName = file.name.replace(/\.[^/.]+$/, "") || "immagine";
 
-
-    originalFileName =
-        file.name.replace(/\.[^/.]+$/, "") ||
-        "immagine";
-
-
-    const reader =
-        new FileReader();
-
-
+    const reader = new FileReader();
     reader.onload = function (event) {
-
         imageToCrop.onload = function () {
-
             dropZone.style.display = "none";
-
             editorPanel.style.display = "block";
 
-
             if (cropper) {
-
                 cropper.destroy();
-
                 cropper = null;
-
             }
 
-
-            /*
-             * CROPPER
-             *
-             * L'immagine rimane modificabile
-             * e può essere ritagliata.
-             */
-
-            cropper =
-                new Cropper(
-                    imageToCrop,
-                    {
-
-                        aspectRatio: NaN,
-
-                        viewMode: 1,
-
-                        autoCrop: true,
-
-                        responsive: true,
-
-                        background: false,
-
-                        movable: true,
-
-                        zoomable: true,
-
-                        rotatable: true,
-
-                        scalable: true,
-
-                        cropBoxMovable: true,
-
-                        cropBoxResizable: true,
-
-                        ready: function () {
-
-                            applyEditorChanges();
-
-                        },
-
-                        crop: function () {
-
-                            applyEditorChanges();
-
-                        }
-
-                    }
-                );
-
+            cropper = new Cropper(imageToCrop, {
+                aspectRatio: NaN,
+                viewMode: 1,
+                autoCrop: true,
+                responsive: true,
+                background: false,
+                movable: true,
+                zoomable: true,
+                rotatable: true,
+                scalable: true,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                ready: function () {
+                    applyEditorChanges();
+                },
+                crop: function () {
+                    applyEditorChanges();
+                }
+            });
         };
-
-
         imageToCrop.onerror = function () {
-
-            alert(
-                "Impossibile caricare questa immagine."
-            );
-
+            alert("Impossibile caricare questa immagine.");
         };
-
-
-        imageToCrop.src =
-            event.target.result;
-
+        imageToCrop.src = event.target.result;
     };
-
-
-    reader.onerror = function () {
-
-        alert(
-            "Errore nella lettura dell'immagine."
-        );
-
-    };
-
-
     reader.readAsDataURL(file);
-
 }
-
-
-// =====================================================
-// MODIFICHE
-// =====================================================
 
 function applyEditorChanges() {
+    if (!cropper) return;
+    const canvas = cropper.getCroppedCanvas({
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: "high"
+    });
+    if (!canvas) return;
 
-    if (!cropper) {
-        return;
-    }
+    pCanvas.width = canvas.width;
+    pCanvas.height = canvas.height;
 
+    const bright = document.getElementById("brightnessInput").value;
+    const contrast = document.getElementById("contrastInput").value;
+    const sat = document.getElementById("saturationInput").value;
 
-    const canvas =
-        cropper.getCroppedCanvas({
+    document.getElementById("brightVal").innerText = bright;
+    document.getElementById("contrastVal").innerText = contrast;
+    document.getElementById("satVal").innerText = sat;
 
-            imageSmoothingEnabled: true,
-
-            imageSmoothingQuality: "high"
-
-        });
-
-
-    if (!canvas) {
-        return;
-    }
-
-
-    pCanvas.width =
-        canvas.width;
-
-    pCanvas.height =
-        canvas.height;
-
-
-    const bright =
-        document.getElementById(
-            "brightnessInput"
-        ).value;
-
-
-    const contrast =
-        document.getElementById(
-            "contrastInput"
-        ).value;
-
-
-    const sat =
-        document.getElementById(
-            "saturationInput"
-        ).value;
-
-
-    document.getElementById(
-        "brightVal"
-    ).innerText = bright;
-
-
-    document.getElementById(
-        "contrastVal"
-    ).innerText = contrast;
-
-
-    document.getElementById(
-        "satVal"
-    ).innerText = sat;
-
-
-    pCtx.clearRect(
-        0,
-        0,
-        pCanvas.width,
-        pCanvas.height
-    );
-
-
-    pCtx.filter =
-        `brightness(${bright}%) ` +
-        `contrast(${contrast}%) ` +
-        `saturate(${sat}%)`;
-
-
-    pCtx.drawImage(
-        canvas,
-        0,
-        0
-    );
-
-
+    pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+    pCtx.filter = `brightness(${bright}%) contrast(${contrast}%) saturate(${sat}%)`;
+    pCtx.drawImage(canvas, 0, 0);
     pCtx.filter = "none";
 
-
-    // WATERMARK
-
-    const wText =
-        document.getElementById(
-            "watermarkText"
-        ).value;
-
-
+    const wText = document.getElementById("watermarkText").value;
     if (wText) {
-
-        pCtx.fillStyle =
-            document.getElementById(
-                "watermarkColor"
-            ).value;
-
-
-        pCtx.font =
-            `${Math.max(
-                16,
-                pCanvas.width / 25
-            )}px sans-serif`;
-
-
-        pCtx.shadowColor =
-            "rgba(0,0,0,0.8)";
-
-
+        pCtx.fillStyle = document.getElementById("watermarkColor").value;
+        pCtx.font = `${Math.max(16, pCanvas.width / 25)}px sans-serif`;
+        pCtx.shadowColor = "rgba(0,0,0,0.8)";
         pCtx.shadowBlur = 4;
 
-
-        if (
-            watermarkX === -1 ||
-            watermarkY === -1
-        ) {
-
-            watermarkX =
-                pCanvas.width - 150;
-
-            watermarkY =
-                pCanvas.height - 40;
-
+        if (watermarkX === -1 || watermarkY === -1) {
+            watermarkX = pCanvas.width - 150;
+            watermarkY = pCanvas.height - 40;
         }
-
-
-        pCtx.fillText(
-            wText,
-            watermarkX,
-            watermarkY
-        );
-
-
+        pCtx.fillText(wText, watermarkX, watermarkY);
         pCtx.shadowBlur = 0;
-
     }
-
-
     updateLiveStats();
-
 }
 
+pCanvas.addEventListener("click", function (e) {
+    if (magicBrushActive || !cropper) return;
+    const rect = pCanvas.getBoundingClientRect();
+    const scaleX = pCanvas.width / rect.width;
+    const scaleY = pCanvas.height / rect.height;
 
-// =====================================================
-// WATERMARK
-// =====================================================
+    watermarkX = (e.clientX - rect.left) * scaleX;
+    watermarkY = (e.clientY - rect.top) * scaleY;
+    applyEditorChanges();
+});
 
-pCanvas.addEventListener(
-    "click",
-    function (e) {
-
-        if (
-            magicBrushActive ||
-            !cropper
-        ) {
-            return;
-        }
-
-
-        const rect =
-            pCanvas.getBoundingClientRect();
-
-
-        const scaleX =
-            pCanvas.width / rect.width;
-
-
-        const scaleY =
-            pCanvas.height / rect.height;
-
-
-        watermarkX =
-            (e.clientX - rect.left) *
-            scaleX;
-
-
-        watermarkY =
-            (e.clientY - rect.top) *
-            scaleY;
-
-
-        applyEditorChanges();
-
-    }
-);
-
-
-// =====================================================
-// PENNELLO
-// =====================================================
-
-document
-    .getElementById("magicBtn")
-    .addEventListener(
-        "click",
-        toggleMagicBrush
-    );
-
+document.getElementById("magicBtn").addEventListener("click", toggleMagicBrush);
 
 function toggleMagicBrush() {
-
-    magicBrushActive =
-        !magicBrushActive;
-
-
-    const instruction =
-        document.getElementById(
-            "magicInstruction"
-        );
-
-
-    const brushGroup =
-        document.getElementById(
-            "brushSizeGroup"
-        );
-
+    magicBrushActive = !magicBrushActive;
+    const instruction = document.getElementById("magicInstruction");
+    const brushGroup = document.getElementById("brushSizeGroup");
+    const button = document.getElementById("magicBtn");
 
     if (magicBrushActive) {
-
-        instruction.style.display =
-            "block";
-
-        brushGroup.classList.add(
-            "active"
-        );
-
+        instruction.style.display = "block";
+        brushGroup.classList.add("active");
+        button.innerText = "🪄 Disattiva Pennello Cancella";
     } else {
-
-        instruction.style.display =
-            "none";
-
-        brushGroup.classList.remove(
-            "active"
-        );
-
+        instruction.style.display = "none";
+        brushGroup.classList.remove("active");
+        button.innerText = "🪄 Attiva Pennello Cancella Sfondo";
     }
-
-
-    const button =
-        document.getElementById(
-            "magicBtn"
-        );
-
-
-    button.innerText =
-        magicBrushActive
-            ? "🪄 Disattiva Pennello Cancella"
-            : "🪄 Attiva Pennello Cancella Sfondo";
-
 }
 
+pCanvas.addEventListener("mousedown", function (e) {
+    if (!magicBrushActive) return;
+    isDrawing = true;
+    eraseAt(e);
+});
 
-// =====================================================
-// PENNELLO
-// =====================================================
+pCanvas.addEventListener("mousemove", function (e) {
+    if (!magicBrushActive || !isDrawing) return;
+    eraseAt(e);
+});
 
-pCanvas.addEventListener(
-    "mousedown",
-    function (e) {
-
-        if (!magicBrushActive) {
-            return;
-        }
-
-
-        isDrawing = true;
-
-        eraseAt(e);
-
-    }
-);
-
-
-pCanvas.addEventListener(
-    "mousemove",
-    function (e) {
-
-        if (
-            !magicBrushActive ||
-            !isDrawing
-        ) {
-            return;
-        }
-
-
-        eraseAt(e);
-
-    }
-);
-
-
-window.addEventListener(
-    "mouseup",
-    function () {
-
-        isDrawing = false;
-
-    }
-);
-
+window.addEventListener("mouseup", function () {
+    isDrawing = false;
+});
 
 function eraseAt(e) {
-
-    const rect =
-        pCanvas.getBoundingClientRect();
-
-
-    const scaleX =
-        pCanvas.width / rect.width;
-
-
-    const scaleY =
-        pCanvas.height / rect.height;
-
-
-    const x =
-        (e.clientX - rect.left) *
-        scaleX;
-
-
-    const y =
-        (e.clientY - rect.top) *
-        scaleY;
-
-
-    const brushSize =
-        Number(
-            document.getElementById(
-                "brushSize"
-            ).value
-        );
-
+    const rect = pCanvas.getBoundingClientRect();
+    const scaleX = pCanvas.width / rect.width;
+    const scaleY = pCanvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+    const brushSize = Number(document.getElementById("brushSize").value);
 
     pCtx.save();
-
-
-    pCtx.globalCompositeOperation =
-        "destination-out";
-
-
+    pCtx.globalCompositeOperation = "destination-out";
     pCtx.beginPath();
-
-
-    pCtx.arc(
-        x,
-        y,
-        brushSize,
-        0,
-        Math.PI * 2
-    );
-
-
+    pCtx.arc(x, y, brushSize, 0, Math.PI * 2);
     pCtx.fill();
-
-
     pCtx.restore();
-
-
     updateLiveStats();
-
 }
 
+document.getElementById("brushSize").addEventListener("input", function () {
+    document.getElementById("brushSizeVal").innerText = this.value;
+});
 
-// =====================================================
-// VALORE PENNELLO
-// =====================================================
+document.getElementById("rotateBtn").addEventListener("click", function () {
+    if (cropper) {
+        cropper.rotate(90);
+        setTimeout(applyEditorChanges, 150);
+    }
+});
 
-document
-    .getElementById("brushSize")
-    .addEventListener(
-        "input",
-        function () {
-
-            document.getElementById(
-                "brushSizeVal"
-            ).innerText =
-                this.value;
-
-        }
-    );
-
-
-// =====================================================
-// ROTAZIONE
-// =====================================================
-
-document
-    .getElementById("rotateBtn")
-    .addEventListener(
-        "click",
-        function () {
-
-            if (cropper) {
-
-                cropper.rotate(90);
-
-                setTimeout(
-                    applyEditorChanges,
-                    100
-                );
-
-            }
-
-        }
-    );
-
-
-// =====================================================
-// RESET
-// =====================================================
-
-document
-    .getElementById("resetBtn")
-    .addEventListener(
-        "click",
-        resetEditor
-    );
-
+document.getElementById("resetBtn").addEventListener("click", resetEditor);
 
 function resetEditor() {
-
-    document.getElementById(
-        "brightnessInput"
-    ).value = 100;
-
-
-    document.getElementById(
-        "contrastInput"
-    ).value = 100;
-
-
-    document.getElementById(
-        "saturationInput"
-    ).value = 100;
-
-
-    document.getElementById(
-        "watermarkText"
-    ).value = "";
-
-
+    document.getElementById("brightnessInput").value = 100;
+    document.getElementById("contrastInput").value = 100;
+    document.getElementById("saturationInput").value = 100;
+    document.getElementById("watermarkText").value = "";
     watermarkX = -1;
-
     watermarkY = -1;
-
-
     magicBrushActive = false;
-
-
-    document.getElementById(
-        "magicInstruction"
-    ).style.display = "none";
-
-
-    document.getElementById(
-        "brushSizeGroup"
-    ).classList.remove("active");
-
-
-    document.getElementById(
-        "magicBtn"
-    ).innerText =
-        "🪄 Attiva Pennello Cancella Sfondo";
-
-
+    document.getElementById("magicInstruction").style.display = "none";
+    document.getElementById("brushSizeGroup").classList.remove("active");
+    document.getElementById("magicBtn").innerText = "🪄 Attiva Pennello Cancella Sfondo";
     if (cropper) {
-
         cropper.reset();
-
     }
-
-
     applyEditorChanges();
-
 }
 
+document.getElementById("brightnessInput").addEventListener("input", applyEditorChanges);
+document.getElementById("contrastInput").addEventListener("input", applyEditorChanges);
+document.getElementById("saturationInput").addEventListener("input", applyEditorChanges);
+document.getElementById("watermarkText").addEventListener("input", applyEditorChanges);
+document.getElementById("watermarkColor").addEventListener("input", applyEditorChanges);
 
-// =====================================================
-// SLIDER COLORE
-// =====================================================
+document.getElementById("qualityInput").addEventListener("input", function () {
+    document.getElementById("qualityVal").innerText = this.value;
+    updateLiveStats();
+});
 
-document
-    .getElementById("brightnessInput")
-    .addEventListener(
-        "input",
-        applyEditorChanges
-    );
-
-
-document
-    .getElementById("contrastInput")
-    .addEventListener(
-        "input",
-        applyEditorChanges
-    );
-
-
-document
-    .getElementById("saturationInput")
-    .addEventListener(
-        "input",
-        applyEditorChanges
-    );
-
-
-// =====================================================
-// WATERMARK
-// =====================================================
-
-document
-    .getElementById("watermarkText")
-    .addEventListener(
-        "input",
-        applyEditorChanges
-    );
-
-
-document
-    .getElementById("watermarkColor")
-    .addEventListener(
-        "input",
-        applyEditorChanges
-    );
-
-
-// =====================================================
-// QUALITÀ
-// =====================================================
-
-document
-    .getElementById("qualityInput")
-    .addEventListener(
-        "input",
-        function () {
-
-            document.getElementById(
-                "qualityVal"
-            ).innerText =
-                this.value;
-
-
-            updateLiveStats();
-
-        }
-    );
-
-
-// =====================================================
-// FORMATO
-// =====================================================
-
-document
-    .getElementById("formatSelect")
-    .addEventListener(
-        "change",
-        updateLiveStats
-    );
-
-
-// =====================================================
-// STATISTICHE
-// =====================================================
+document.getElementById("formatSelect").addEventListener("change", updateLiveStats);
 
 function updateLiveStats() {
-
-    if (!pCanvas.width) {
-        return;
-    }
-
-
-    document.getElementById(
-        "dimensionInfo"
-    ).innerText =
-        `Dimensioni: ${pCanvas.width} x ${pCanvas.height} px`;
-
-
-    const quality =
-        Number(
-            document.getElementById(
-                "qualityInput"
-            ).value
-        ) / 100;
-
-
-    const format =
-        document.getElementById(
-            "formatSelect"
-        ).value;
-
+    if (!pCanvas.width) return;
+    document.getElementById("dimensionInfo").innerText = `Dimensioni: ${pCanvas.width} x ${pCanvas.height} px`;
+    const quality = Number(document.getElementById("qualityInput").value) / 100;
+    const format = document.getElementById("formatSelect").value;
 
     try {
-
-        const dataUrl =
-            pCanvas.toDataURL(
-                format,
-                quality
-            );
-
-
-        const sizeKB =
-            Math.round(
-                dataUrl.length *
-                0.75 /
-                1024
-            );
-
-
-        document.getElementById(
-            "sizeInfo"
-        ).innerText =
-            `Peso st.: ~${sizeKB} KB`;
-
+        const dataUrl = pCanvas.toDataURL(format, quality);
+        const sizeKB = Math.round(dataUrl.length * 0.75 / 1024);
+        document.getElementById("sizeInfo").innerText = `Peso st.: ~${sizeKB} KB`;
     } catch (error) {
-
         console.error(error);
-
     }
-
 }
 
-
-// =====================================================
-// CONFERMA
-// =====================================================
-
-document
-    .getElementById("confirmBtn")
-    .addEventListener(
-        "click",
-        confirmFinalImage
-    );
-
+document.getElementById("confirmBtn").addEventListener("click", confirmFinalImage);
 
 function confirmFinalImage() {
-
     if (!pCanvas.width) {
-
-        alert(
-            "Prima carica un'immagine."
-        );
-
+        alert("Prima carica un'immagine.");
         return;
-
     }
+    const quality = Number(document.getElementById("qualityInput").value) / 100;
+    const format = document.getElementById("formatSelect").value;
+    const dataUrl = pCanvas.toDataURL(format, quality);
 
+    document.getElementById("finalPreviewImg").src = dataUrl;
+    let ext = format.split("/")[1];
+    if (ext === "jpeg") ext = "jpg";
 
-    const quality =
-        Number(
-            document.getElementById(
-                "qualityInput"
-            ).value
-        ) / 100;
-
-
-    const format =
-        document.getElementById(
-            "formatSelect"
-        ).value;
-
-
-    const dataUrl =
-        pCanvas.toDataURL(
-            format,
-            quality
-        );
-
-
-    document.getElementById(
-        "finalPreviewImg"
-    ).src = dataUrl;
-
-
-    let ext =
-        format.split("/")[1];
-
-
-    if (ext === "jpeg") {
-        ext = "jpg";
-    }
-
-
-    const downloadBtn =
-        document.getElementById(
-            "downloadBtn"
-        );
-
-
+    const downloadBtn = document.getElementById("downloadBtn");
     downloadBtn.href = dataUrl;
+    downloadBtn.download = `${originalFileName}-modificato.${ext}`;
 
+    const sizeKB = Math.round(dataUrl.length * 0.75 / 1024);
+    document.getElementById("finalStats").innerText = `Formato: ${ext.toUpperCase()} | Dimensioni: ${pCanvas.width}x${pCanvas.height}px | Peso: ~${sizeKB} KB`;
 
-    downloadBtn.download =
-        `${originalFileName}-modificato.${ext}`;
-
-
-    const sizeKB =
-        Math.round(
-            dataUrl.length *
-            0.75 /
-            1024
-        );
-
-
-    document.getElementById(
-        "finalStats"
-    ).innerText =
-        `Formato: ${ext.toUpperCase()} | ` +
-        `Dimensioni: ${pCanvas.width}x${pCanvas.height}px | ` +
-        `Peso: ~${sizeKB} KB`;
-
-
-    editorPanel.style.display =
-        "none";
-
-
-    document.getElementById(
-        "resultBox"
-    ).style.display =
-        "block";
-
+    editorPanel.style.display = "none";
+    document.getElementById("resultBox").style.display = "block";
 }
 
+dropZone.addEventListener("dragover", function (e) {
+    e.preventDefault();
+    dropZone.style.borderColor = "var(--primary)";
+});
 
-// =====================================================
-// DRAG & DROP
-// =====================================================
+dropZone.addEventListener("dragleave", function () {
+    dropZone.style.borderColor = "var(--border)";
+});
 
-dropZone.addEventListener(
-    "dragover",
-    function (e) {
-
-        e.preventDefault();
-
-        dropZone.style.borderColor =
-            "var(--primary)";
-
+dropZone.addEventListener("drop", function (e) {
+    e.preventDefault();
+    dropZone.style.borderColor = "var(--border)";
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        handleImage({ files: files });
     }
-);
-
-
-dropZone.addEventListener(
-    "dragleave",
-    function () {
-
-        dropZone.style.borderColor =
-            "var(--border)";
-
-    }
-);
-
-
-dropZone.addEventListener(
-    "drop",
-    function (e) {
-
-        e.preventDefault();
-
-
-        dropZone.style.borderColor =
-            "var(--border)";
-
-
-        const files =
-            e.dataTransfer.files;
-
-
-        if (files.length > 0) {
-
-            handleImage({
-                files: files
-            });
-
-        }
-
-    }
-);
-
+});
 </script>
 
 </body>
