@@ -33,13 +33,9 @@
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg-base);
+            background: var(--bg-base);
             color: var(--text-main);
             margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             min-height: 100vh;
         }
 
@@ -65,9 +61,14 @@
 
         .container {
             width: 100%;
-            max-width: 650px;
+            max-width: 700px;
+            margin: 0 auto;
             padding: 20px;
         }
+
+        /* =========================
+           CARICAMENTO
+        ========================= */
 
         .drop-zone {
             background: var(--bg-card);
@@ -77,7 +78,6 @@
             text-align: center;
             cursor: pointer;
             transition: 0.2s;
-            margin-bottom: 20px;
         }
 
         .drop-zone:hover {
@@ -93,25 +93,28 @@
             display: none;
         }
 
+        /* =========================
+           EDITOR
+        ========================= */
+
         .editor-panel {
             display: none;
             background: var(--bg-card);
             border-radius: 16px;
             padding: 20px;
             border: 1px solid var(--border);
-            margin-bottom: 20px;
         }
 
         /* AREA IMMAGINE */
         .img-container {
             width: 100%;
-            height: 350px;
-            margin-bottom: 15px;
-            position: relative;
+            height: 380px;
 
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+
+            position: relative;
 
             background: repeating-conic-gradient(
                 #334155 0% 25%,
@@ -119,71 +122,115 @@
             );
 
             background-size: 16px 16px;
-            border-radius: 8px;
+
+            border-radius: 10px;
             overflow: hidden;
-            user-select: none;
+
+            margin-bottom: 15px;
         }
 
-        #previewCanvas {
-            display: block;
+        /*
+         * Cropper rimane visibile sopra l'immagine.
+         * L'immagine viene centrata.
+         */
+        .cropper-container {
             max-width: 100%;
             max-height: 100%;
-            width: auto;
-            height: auto;
-            margin: auto;
-            cursor: crosshair;
         }
 
         #imageToCrop {
+            display: block;
+            max-width: 100%;
+        }
+
+        /* =========================
+           CANVAS
+        ========================= */
+
+        #previewCanvas {
             display: none;
         }
 
-        /* SLIDER */
-        .control-group input[type="range"] {
-            width: 100%;
-            height: 6px;
-            padding: 0;
-            margin: 8px 0;
-            cursor: pointer;
-            accent-color: var(--primary);
+        /* =========================
+           PENNELLO
+        ========================= */
+
+        #brushSizeGroup {
+            display: none;
+
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+
+            padding: 12px 15px;
+
+            margin-bottom: 15px;
         }
+
+        #brushSizeGroup.active {
+            display: block;
+        }
+
+        #brushSizeGroup label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        /* =========================
+           ISTRUZIONI
+        ========================= */
+
+        .instruction-box {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid var(--purple);
+
+            padding: 10px;
+
+            border-radius: 8px;
+
+            font-size: 0.85rem;
+
+            color: #d8b4fe;
+
+            text-align: center;
+
+            display: none;
+
+            margin-bottom: 15px;
+        }
+
+        /* =========================
+           STATISTICHE
+        ========================= */
 
         .live-stats {
             background: #0f172a;
             border: 1px solid var(--border);
+
             padding: 10px 15px;
+
             border-radius: 8px;
+
             font-size: 0.85rem;
+
             color: var(--text-muted);
+
             display: flex;
             justify-content: space-between;
+
             margin-bottom: 15px;
         }
+
+        /* =========================
+           CONTROLLI
+        ========================= */
 
         .controls {
             display: flex;
             flex-direction: column;
             gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .control-group label {
-            display: block;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 5px;
-        }
-
-        .control-group select,
-        .control-group input[type="text"],
-        .control-group input[type="color"] {
-            width: 100%;
-            padding: 10px;
-            background: #0f172a;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: white;
-            font-family: inherit;
         }
 
         .tools-row {
@@ -193,15 +240,21 @@
 
         .btn-tool {
             flex: 1;
+
             background: #334155;
             color: white;
+
             border: none;
+
             padding: 10px;
+
             border-radius: 8px;
+
             font-weight: bold;
+
             cursor: pointer;
+
             font-size: 0.9rem;
-            transition: background 0.2s;
         }
 
         .btn-tool:hover {
@@ -210,15 +263,21 @@
 
         .btn-magic {
             width: 100%;
+
             background: var(--purple);
             color: white;
+
             border: none;
+
             padding: 12px;
+
             border-radius: 10px;
+
             font-weight: bold;
+
             font-size: 0.95rem;
+
             cursor: pointer;
-            transition: background 0.2s;
         }
 
         .btn-magic:hover {
@@ -227,102 +286,155 @@
 
         .section-title {
             font-size: 0.9rem;
+
             font-weight: bold;
+
             color: var(--primary);
+
             border-bottom: 1px solid var(--border);
+
             padding-bottom: 5px;
-            margin-top: 10px;
+
+            margin-top: 5px;
         }
+
+        .control-group label {
+            display: block;
+
+            font-size: 0.85rem;
+
+            color: var(--text-muted);
+
+            margin-bottom: 5px;
+        }
+
+        .control-group input[type="text"],
+        .control-group input[type="color"],
+        .control-group select {
+            width: 100%;
+
+            padding: 10px;
+
+            background: #0f172a;
+
+            border: 1px solid var(--border);
+
+            border-radius: 8px;
+
+            color: white;
+
+            font-family: inherit;
+        }
+
+        /* =========================
+           SLIDER
+        ========================= */
+
+        input[type="range"] {
+            width: 100%;
+
+            height: 6px;
+
+            padding: 0;
+
+            margin: 8px 0;
+
+            cursor: pointer;
+
+            accent-color: var(--primary);
+        }
+
+        /* =========================
+           CONFERMA
+        ========================= */
 
         .btn-confirm {
             display: block;
+
             width: 100%;
+
             background: var(--success);
+
             color: white;
+
             border: none;
+
             padding: 14px;
+
             border-radius: 10px;
+
             font-weight: bold;
+
             font-size: 1rem;
+
             cursor: pointer;
-            margin-top: 10px;
+
+            margin-top: 20px;
         }
 
         .btn-confirm:hover {
             background: var(--success-hover);
         }
 
+        /* =========================
+           RISULTATO
+        ========================= */
+
         .result-box {
             display: none;
+
             background: var(--bg-card);
+
             border-radius: 16px;
+
             padding: 20px;
+
             border: 1px solid var(--border);
+
             text-align: center;
         }
 
         .result-box h3 {
-            margin-top: 0;
             color: var(--success);
-        }
-
-        .result-preview {
-            margin-bottom: 15px;
         }
 
         .result-preview img {
             max-width: 100%;
-            max-height: 250px;
+            max-height: 300px;
+
             border-radius: 8px;
+
             border: 1px solid var(--border);
         }
 
         .btn-download {
             display: block;
+
             width: 100%;
+
             background: var(--primary);
+
             color: white;
-            border: none;
+
             padding: 14px;
+
             border-radius: 10px;
+
             font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            text-align: center;
+
             text-decoration: none;
-        }
 
-        .btn-download:hover {
-            background: var(--primary-hover);
-        }
-
-        .instruction-box {
-            background: rgba(139, 92, 246, 0.15);
-            border: 1px solid var(--purple);
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            color: #d8b4fe;
-            text-align: center;
-            display: none;
-            margin-bottom: 15px;
+            margin-top: 15px;
         }
 
         .click-hint {
             font-size: 0.8rem;
+
             color: var(--text-muted);
+
             font-style: italic;
+
             margin-top: 4px;
-        }
-
-        /* CONTROLLO PENNELLO NASCOSTO */
-        #brushSizeGroup {
-            display: none;
-        }
-
-        /* Quando il pennello è attivo */
-        #brushSizeGroup.active {
-            display: block;
         }
     </style>
 </head>
@@ -331,12 +443,15 @@
 
 <header>
     <h1>⚡ PixelSnap</h1>
-    <p>Editor Totale con Pennello, Colori e Filigrana al Cursore</p>
+    <p>Editor Totale con Pennello, Colori e Filigrana</p>
 </header>
 
 <div class="container">
 
-    <!-- CARICAMENTO -->
+    <!-- =========================
+         CARICAMENTO
+    ========================= -->
+
     <div id="dropZone" class="drop-zone">
 
         <svg width="40"
@@ -349,7 +464,9 @@
              stroke-linejoin="round">
 
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+
             <polyline points="17 8 12 3 7 8"></polyline>
+
             <line x1="12" y1="3" x2="12" y2="15"></line>
 
         </svg>
@@ -365,8 +482,13 @@
     </div>
 
 
-    <!-- EDITOR -->
+    <!-- =========================
+         EDITOR
+    ========================= -->
+
     <div id="editorPanel" class="editor-panel">
+
+        <!-- IMMAGINE / CROPPER -->
 
         <div class="img-container">
 
@@ -375,18 +497,51 @@
                 alt="Immagine da modificare"
             >
 
+            <!-- Canvas finale nascosto -->
             <canvas id="previewCanvas"></canvas>
 
         </div>
 
 
-        <div id="magicInstruction" class="instruction-box">
+        <!-- ISTRUZIONI PENNELLO -->
+
+        <div
+            id="magicInstruction"
+            class="instruction-box">
 
             🪄 <b>Pennello Magico Attivo:</b>
-            Trascina il mouse sull'immagine per cancellare.
+            trascina il mouse sull'immagine per cancellare.
 
         </div>
 
+
+        <!-- =========================
+             DIMENSIONE PENNELLO
+             SOTTO L'IMMAGINE
+        ========================= -->
+
+        <div
+            id="brushSizeGroup"
+            class="control-group">
+
+            <label>
+                🪄 Dimensione Pennello:
+                <span id="brushSizeVal">20</span> px
+            </label>
+
+            <input
+                type="range"
+                id="brushSize"
+                min="5"
+                max="100"
+                value="20"
+                step="1"
+            >
+
+        </div>
+
+
+        <!-- STATISTICHE -->
 
         <div class="live-stats">
 
@@ -400,6 +555,8 @@
 
         </div>
 
+
+        <!-- CONTROLLI -->
 
         <div class="controls">
 
@@ -433,6 +590,8 @@
             </button>
 
 
+            <!-- COLORE -->
+
             <div class="section-title">
                 🎨 Regolazioni Colore
             </div>
@@ -441,8 +600,8 @@
             <div class="control-group">
 
                 <label>
-                    Luminosità
-                    (<span id="brightVal">100</span>%)
+                    Luminosità:
+                    <span id="brightVal">100</span>%
                 </label>
 
                 <input
@@ -460,8 +619,8 @@
             <div class="control-group">
 
                 <label>
-                    Contrasto
-                    (<span id="contrastVal">100</span>%)
+                    Contrasto:
+                    <span id="contrastVal">100</span>%
                 </label>
 
                 <input
@@ -479,8 +638,8 @@
             <div class="control-group">
 
                 <label>
-                    Saturazione
-                    (<span id="satVal">100</span>%)
+                    Saturazione:
+                    <span id="satVal">100</span>%
                 </label>
 
                 <input
@@ -494,6 +653,8 @@
 
             </div>
 
+
+            <!-- FILIGRANA -->
 
             <div class="section-title">
                 ✍️ Filigrana
@@ -513,8 +674,7 @@
                 >
 
                 <div class="click-hint">
-                    💡 Scrivi il testo e clicca sull'immagine
-                    per posizionarlo.
+                    💡 Scrivi il testo e clicca sull'immagine per posizionarlo.
                 </div>
 
             </div>
@@ -535,30 +695,10 @@
             </div>
 
 
+            <!-- ESPORTAZIONE -->
+
             <div class="section-title">
                 ⚙️ Esportazione
-            </div>
-
-
-            <!-- DIMENSIONE PENNELLO -->
-            <div
-                class="control-group"
-                id="brushSizeGroup">
-
-                <label>
-                    🪄 Dimensione del Pennello:
-                    <span id="brushSizeVal">20</span> px
-                </label>
-
-                <input
-                    type="range"
-                    id="brushSize"
-                    min="5"
-                    max="100"
-                    value="20"
-                    step="1"
-                >
-
             </div>
 
 
@@ -619,12 +759,13 @@
     </div>
 
 
-    <!-- RISULTATO -->
+    <!-- =========================
+         RISULTATO
+    ========================= -->
+
     <div id="resultBox" class="result-box">
 
-        <h3>
-            ✨ Risultato Pronto
-        </h3>
+        <h3>✨ Risultato Pronto</h3>
 
         <div class="result-preview">
 
@@ -637,7 +778,7 @@
 
         <div
             id="finalStats"
-            style="font-size:0.85rem;color:var(--text-muted);margin-bottom:15px;">
+            style="font-size:0.85rem;color:var(--text-muted);margin-top:10px;">
         </div>
 
         <a
@@ -676,6 +817,7 @@ const pCanvas =
 
 const pCtx =
     pCanvas.getContext("2d");
+
 
 const dropZone =
     document.getElementById("dropZone");
@@ -723,7 +865,6 @@ function handleImage(input) {
         alert("Seleziona un file immagine.");
 
         return;
-
     }
 
 
@@ -740,11 +881,9 @@ function handleImage(input) {
 
         imageToCrop.onload = function () {
 
-            dropZone.style.display =
-                "none";
+            dropZone.style.display = "none";
 
-            editorPanel.style.display =
-                "block";
+            editorPanel.style.display = "block";
 
 
             if (cropper) {
@@ -756,6 +895,13 @@ function handleImage(input) {
             }
 
 
+            /*
+             * CROPPER
+             *
+             * L'immagine rimane modificabile
+             * e può essere ritagliata.
+             */
+
             cropper =
                 new Cropper(
                     imageToCrop,
@@ -765,13 +911,31 @@ function handleImage(input) {
 
                         viewMode: 1,
 
-                        autoCrop: false,
+                        autoCrop: true,
 
                         responsive: true,
 
                         background: false,
 
+                        movable: true,
+
+                        zoomable: true,
+
+                        rotatable: true,
+
+                        scalable: true,
+
+                        cropBoxMovable: true,
+
+                        cropBoxResizable: true,
+
                         ready: function () {
+
+                            applyEditorChanges();
+
+                        },
+
+                        crop: function () {
 
                             applyEditorChanges();
 
@@ -783,14 +947,13 @@ function handleImage(input) {
         };
 
 
-        imageToCrop.onerror =
-            function () {
+        imageToCrop.onerror = function () {
 
-                alert(
-                    "Impossibile caricare questa immagine."
-                );
+            alert(
+                "Impossibile caricare questa immagine."
+            );
 
-            };
+        };
 
 
         imageToCrop.src =
@@ -902,6 +1065,8 @@ function applyEditorChanges() {
 
     pCtx.filter = "none";
 
+
+    // WATERMARK
 
     const wText =
         document.getElementById(
@@ -1024,7 +1189,7 @@ function toggleMagicBrush() {
         !magicBrushActive;
 
 
-    const box =
+    const instruction =
         document.getElementById(
             "magicInstruction"
         );
@@ -1036,16 +1201,25 @@ function toggleMagicBrush() {
         );
 
 
-    box.style.display =
-        magicBrushActive
-            ? "block"
-            : "none";
+    if (magicBrushActive) {
 
+        instruction.style.display =
+            "block";
 
-    brushGroup.classList.toggle(
-        "active",
-        magicBrushActive
-    );
+        brushGroup.classList.add(
+            "active"
+        );
+
+    } else {
+
+        instruction.style.display =
+            "none";
+
+        brushGroup.classList.remove(
+            "active"
+        );
+
+    }
 
 
     const button =
@@ -1063,7 +1237,7 @@ function toggleMagicBrush() {
 
 
 // =====================================================
-// MOUSE PENNELLO
+// PENNELLO
 // =====================================================
 
 pCanvas.addEventListener(
@@ -1110,10 +1284,6 @@ window.addEventListener(
     }
 );
 
-
-// =====================================================
-// CANCELLA
-// =====================================================
 
 function eraseAt(e) {
 
@@ -1197,7 +1367,7 @@ document
 
 
 // =====================================================
-// RUOTA
+// ROTAZIONE
 // =====================================================
 
 document
@@ -1292,7 +1462,7 @@ function resetEditor() {
 
 
 // =====================================================
-// SLIDER
+// SLIDER COLORE
 // =====================================================
 
 document
@@ -1318,6 +1488,10 @@ document
         applyEditorChanges
     );
 
+
+// =====================================================
+// WATERMARK
+// =====================================================
 
 document
     .getElementById("watermarkText")
@@ -1350,6 +1524,7 @@ document
             ).innerText =
                 this.value;
 
+
             updateLiveStats();
 
         }
@@ -1357,7 +1532,7 @@ document
 
 
 // =====================================================
-// STATISTICHE
+// FORMATO
 // =====================================================
 
 document
@@ -1367,6 +1542,10 @@ document
         updateLiveStats
     );
 
+
+// =====================================================
+// STATISTICHE
+// =====================================================
 
 function updateLiveStats() {
 
@@ -1406,7 +1585,9 @@ function updateLiveStats() {
 
         const sizeKB =
             Math.round(
-                dataUrl.length * 0.75 / 1024
+                dataUrl.length *
+                0.75 /
+                1024
             );
 
 
@@ -1417,10 +1598,7 @@ function updateLiveStats() {
 
     } catch (error) {
 
-        console.error(
-            "Errore statistiche:",
-            error
-        );
+        console.error(error);
 
     }
 
@@ -1502,7 +1680,9 @@ function confirmFinalImage() {
 
     const sizeKB =
         Math.round(
-            dataUrl.length * 0.75 / 1024
+            dataUrl.length *
+            0.75 /
+            1024
         );
 
 
