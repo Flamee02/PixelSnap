@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelSnap - Editor Totale</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0f172a;
+            --bg-card: #1e293b;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --success: #10b981;
+            --success-hover: #059669;
+            --purple: #8b5cf6;
+            --purple-hover: #7c3aed;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            width: 100%;
+            padding: 20px 0;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-card);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.6rem;
+            color: var(--primary);
+        }
+
+        header p {
+            margin: 5px 0 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .drop-zone {
+            background: var(--bg-card);
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .drop-zone:hover {
+            border-color: var(--primary);
+        }
+
+        .drop-zone p {
+            margin: 10px 0 0;
+            color: var(--text-muted);
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .editor-panel {
+            display: none;
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .img-container {
+            width: 100%;
+            max-height: 350px;
+            margin-bottom: 15px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            background: repeating-conic-gradient(#334155 0% 25%, #1e293b 0% 50%);
+            background-size: 16px 16px;
+            border-radius: 8px;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Canvas dell'anteprima (quello su cui clicchi per il watermark) */
+        #previewCanvas {
+            max-width: 100%;
+            display: block;
+            cursor: crosshair; /* Cursore a croce per indicare il posizionamento */
+        }
+
+        /* Nascondiamo l'img originale mentre cropper lavora sul canvas */
+        #imageToCrop {
+            display: none; 
+        }
+
+        .live-stats {
+            background: #0f172a;
+            border: 1px solid var(--border);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .control-group select, .control-group input[type="range"], .control-group input[type="text"], .control-group input[type="color"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+        }
+
+        .tools-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-tool {
+            flex: 1;
+            background: #334155;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .btn-tool:hover {
+            background: #475569;
+        }
+
+        .btn-magic {
+            width: 100%;
+            background: var(--purple);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-magic:hover {
+            background: var(--purple-hover);
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--primary);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 5px;
+            margin-top: 10px;
+        }
+
+        .btn-confirm {
+            display: block;
+            width: 100%;
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: center;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-confirm:hover {
+            background: var(--success-hover);
+        }
+
+        .result-box {
+            display: none;
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .result-box h3 {
+            margin-top: 0;
+            color: var(--success);
+        }
+
+        .result-preview {
+            margin-bottom: 15px;
+        }
+
+        .result-preview img {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: repeating-conic-gradient(#334155 0% 25%, #1e293b 0% 50%);
+            background-size: 16px 16px;
+        }
+
+        .btn-download {
+            display: block;
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .btn-download:hover {
+            background: var(--primary-hover);
+        }
+
+        .instruction-box {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid var(--purple);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #d8b4fe;
+            text-align: center;
+            display: none;
+            margin-bottom: 15px;
+        }
+        .click-hint {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>⚡ PixelSnap</h1>
+        <p>Editor Totale con Pennello, Colori e Filigrana al Cursore</p>
+    </header>
+
+    <div class="container">
+        <!-- Area Caricamento -->
+        <div id="dropZone" class="drop-zone" onclick="document.getElementById('fileInput').click()">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <p>Clicca qui o trascina un'immagine</p>
+            <input type="file" id="fileInput" accept="image/*" onchange="handleImage(this)">
+        </div>
+
+        <!-- Pannello Editor -->
+        <div id="editorPanel" class="editor-panel">
+            <div class="img-container" id="imageContainer">
+                <!-- Immagine nascosta usata da Cropper -->
+                <img id="imageToCrop" alt="Immagine da modificare">
+                <!-- Canvas visibile su cui applichiamo filtri e watermark -->
+                <canvas id="previewCanvas"></canvas>
+            </div>
+
+            <div id="magicInstruction" class="instruction-box">
+                🪄 **Pennello Magico Attivo:** Trascina il mouse per cancellare! Clicca di nuovo sul tasto viola per tornare ai controlli.
+            </div>
+
+            <!-- Informazioni live -->
+            <div class="live-stats">
+                <span id="dimensionInfo">Dimensioni: -- x -- px</span>
+                <span id="sizeInfo">Peso st.: -- KB</span>
+            </div>
+
+            <div class="controls">
+                <div class="tools-row">
+                    <button class="btn-tool" onclick="if(cropper) cropper.rotate(90)">🔄 Ruota</button>
+                    <button class="btn-tool" onclick="resetEditor()">❌ Reset Tutto</button>
+                </div>
+
+                <!-- Attivazione Pennello Magico -->
+                <button class="btn-magic" onclick="toggleMagicBrush()">🪄 Attiva Pennello Cancella Sfondo</button>
+
+                <!-- Regolazioni Colore -->
+                <div class="section-title">🎨 Regolazioni Colore (Globale)</div>
+                
+                <div class="control-group">
+                    <label>Luminosità (<span id="brightVal">100</span>%):</label>
+                    <input type="range" id="brightnessInput" min="0" max="200" value="100" oninput="applyEditorChanges()">
+                </div>
+
+                <div class="control-group">
+                    <label>Contrasto (<span id="contrastVal">100</span>%):</label>
+                    <input type="range" id="contrastInput" min="0" max="200" value="100" oninput="applyEditorChanges()">
+                </div>
+
+                <div class="control-group">
+                    <label>Saturazione (<span id="satVal">100</span>%):</label>
+                    <input type="range" id="saturationInput" min="0" max="200" value="100" oninput="applyEditorChanges()">
+                </div>
+
+                <!-- Filigrana / Watermark Testuale -->
+                <div class="section-title">✍️ Filigrana (Watermark)</div>
+
+                <div class="control-group">
+                    <label>Testo Filigrana:</label>
+                    <input type="text" id="watermarkText" placeholder="Es: © PixelSnap" onkeyup="applyEditorChanges()">
+                    <div class="click-hint">💡 Dopo aver scritto il testo, <b>clicca sull'immagine sopra</b> per posizionarlo.</div>
+                </div>
+
+                <div class="control-group">
+                    <label>Colore Testo:</label>
+                    <input type="color" id="watermarkColor" value="#ffffff" onchange="applyEditorChanges()">
+                </div>
+
+                <!-- Parametri generali -->
+                <div class="section-title">⚙️ Esportazione</div>
+
+                <div class="control-group">
+                    <label>Dimensione del Pennello (gomma):</label>
+                    <input type="range" id="brushSize" min="5" max="50" value="20">
+                </div>
+
+                <div class="control-group">
+                    <label>Qualità / Compressione:</label>
+                    <input type="range" id="qualityInput" min="10" max="100" value="90" oninput="updateLiveStats()">
+                </div>
+
+                <div class="control-group">
+                    <label>Formato di salvataggio:</label>
+                    <select id="formatSelect" onchange="updateLiveStats()">
+                        <option value="image/jpeg">JPEG (.jpg)</option>
+                        <option value="image/png" selected>PNG (.png - Supporta trasparenza)</option>
+                        <option value="image/webp">WEBP (.webp - Super leggero)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Pulsante Conferma -->
+            <button class="btn-confirm" onclick="confirmFinalImage()">✅ Conferma e genera finale</button>
+        </div>
+
+        <!-- Pannello Risultato -->
+        <div id="resultBox" class="result-box">
+            <h3>✨ Risultato Pronto</h3>
+            <div class="result-preview">
+                <img id="finalPreviewImg" alt="Anteprima Finale">
+            </div>
+            <div id="finalStats" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;"></div>
+            <a id="downloadBtn" class="btn-download">💾 Scarica Immagine Definitiva</a>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script>
+        let cropper = null;
+        let originalFileName = '';
+        let magicBrushActive = false;
+        let isDrawing = false;
+
+        // Variabili per gestire il canvas principale e il posizionamento del watermark
+        let pCanvas = document.getElementById('previewCanvas');
+        let pCtx = pCanvas.getContext('2d');
+        let watermarkX = -1; //
