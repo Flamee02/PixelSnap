@@ -91,6 +91,32 @@
             border: 1px solid var(--border);
         }
 
+        .container-header {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 8px;
+        }
+
+        .btn-crop-toggle {
+            background: #334155;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+
+        .btn-crop-toggle.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
         .img-container {
             width: 100%;
             height: 380px;
@@ -112,6 +138,10 @@
 
         #previewCanvas {
             display: none;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            cursor: crosshair;
         }
 
         #brushSizeGroup {
@@ -300,7 +330,7 @@
 
 <header>
     <h1>⚡ PixelSnap</h1>
-    <p>Editor Totale con Pennello, Colori e Filigrana</p>
+    <p>Editor Totale con Ritaglio, Pennello, Colori e Filigrana</p>
 </header>
 
 <div class="container">
@@ -315,6 +345,12 @@
     </div>
 
     <div id="editorPanel" class="editor-panel">
+        <div class="container-header">
+            <button id="cropToggleBtn" class="btn-crop-toggle" title="Attiva/Disattiva Taglierino">
+                ✂️ <span id="cropToggleText">Attiva Taglierino</span>
+            </button>
+        </div>
+
         <div class="img-container">
             <img id="imageToCrop" alt="Immagine da modificare">
             <canvas id="previewCanvas"></canvas>
@@ -324,7 +360,6 @@
             🪄 <b>Pennello Magico Attivo:</b> trascina il mouse sull'immagine per cancellare.
         </div>
 
-        <!-- BARRA DIMENSIONE PENNELLO (Ora sotto la foto, compare solo se attivo) -->
         <div id="brushSizeGroup" class="control-group">
             <label>
                 🪄 Dimensione Pennello: <span id="brushSizeVal">20</span> px
@@ -367,7 +402,12 @@
             <div class="control-group">
                 <label>Testo Filigrana:</label>
                 <input type="text" id="watermarkText" placeholder="Es: © PixelSnap">
-                <div class="click-hint">💡 Scrivi il testo e clicca sull'immagine per posizionarlo.</div>
+                <div class="click-hint">💡 Trascina la filigrana direttamente sull'anteprima per spostarla.</div>
+            </div>
+
+            <div class="control-group">
+                <label>Dimensione Testo: <span id="watermarkSizeVal">24</span> px</label>
+                <input type="range" id="watermarkSizeInput" min="10" max="150" value="24" step="1">
             </div>
 
             <div class="control-group">
@@ -410,10 +450,17 @@
 <script>
 let cropper = null;
 let originalFileName = "immagine";
+let cropModeActive = false;
 let magicBrushActive = false;
 let isDrawing = false;
+let isDraggingWatermark = false;
+
 let watermarkX = -1;
 let watermarkY = -1;
+
+let baseProcessedCanvas = document.createElement("canvas");
+let baseCtx = baseProcessedCanvas.getContext("2d");
+let currentRawImage = new Image();
 
 const pCanvas = document.getElementById("previewCanvas");
 const pCtx = pCanvas.getContext("2d");
@@ -421,6 +468,7 @@ const dropZone = document.getElementById("dropZone");
 const fileInput = document.getElementById("fileInput");
 const editorPanel = document.getElementById("editorPanel");
 const imageToCrop = document.getElementById("imageToCrop");
+const imgContainerEl = document.querySelector(".img-container");
 
 dropZone.addEventListener("click", () => fileInput.click());
 fileInput.addEventListener("change", function() { handleImage(this); });
@@ -436,53 +484,92 @@ function handleImage(input) {
 
     const reader = new FileReader();
     reader.onload = function (event) {
-        imageToCrop.onload = function () {
+        currentRawImage.onload = function () {
             dropZone.style.display = "none";
             editorPanel.style.display = "block";
 
-            if (cropper) {
-                cropper.destroy();
-                cropper = null;
-            }
+            baseProcessedCanvas.width = currentRawImage.width;
+            baseProcessedCanvas.height = currentRawImage.height;
+            baseCtx.clearRect(0, 0, baseProcessedCanvas.width, baseProcessedCanvas.height);
+            baseCtx.drawImage(currentRawImage, 0, 0);
 
-            cropper = new Cropper(imageToCrop, {
-                aspectRatio: NaN,
-                viewMode: 1,
-                autoCrop: true,
-                responsive: true,
-                background: false,
-                movable: true,
-                zoomable: true,
-                rotatable: true,
-                scalable: true,
-                cropBoxMovable: true,
-                cropBoxResizable: true,
-                ready: function () {
-                    applyEditorChanges();
-                },
-                crop: function () {
-                    applyEditorChanges();
-                }
-            });
+            watermarkX = -1;
+            watermarkY = -1;
+
+            updateBaseAndPreview();
         };
-        imageToCrop.onerror = function () {
-            alert("Impossibile caricare questa immagine.");
-        };
-        imageToCrop.src = event.target.result;
+        currentRawImage.src = event.target.result;
     };
     reader.readAsDataURL(file);
 }
 
-function applyEditorChanges() {
-    if (!cropper) return;
-    const canvas = cropper.getCroppedCanvas({
-        imageSmoothingEnabled: true,
-        imageSmoothingQuality: "high"
-    });
-    if (!canvas) return;
+const cropToggleBtn = document.getElementById("cropToggleBtn");
+cropToggleBtn.addEventListener("click", function () {
+    if (magicBrushActive) {
+        alert("Disattiva prima il pennello magico.");
+        return;
+    }
+    cropModeActive = !cropModeActive;
+    const textSpan = document.getElementById("cropToggleText");
+    const containerCropper = imgContainerEl.querySelector(".cropper-container");
 
-    pCanvas.width = canvas.width;
-    pCanvas.height = canvas.height;
+    if (cropModeActive) {
+        cropToggleBtn.classList.add("active");
+        textSpan.innerText = "Disattiva Taglierino";
+        pCanvas.style.display = "none";
+        imageToCrop.style.display = "block";
+        imageToCrop.src = baseProcessedCanvas.toDataURL();
+
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+
+        cropper = new Cropper(imageToCrop, {
+            aspectRatio: NaN,
+            viewMode: 1,
+            autoCrop: true,
+            responsive: true,
+            background: false,
+            movable: true,
+            zoomable: true,
+            rotatable: true,
+            scalable: true,
+            cropBoxMovable: true,
+            cropBoxResizable: true,
+        });
+    } else {
+        if (cropper) {
+            const croppedCanvas = cropper.getCroppedCanvas({
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: "high"
+            });
+            if (croppedCanvas) {
+                baseProcessedCanvas.width = croppedCanvas.width;
+                baseProcessedCanvas.height = croppedCanvas.height;
+                baseCtx.clearRect(0, 0, baseProcessedCanvas.width, baseProcessedCanvas.height);
+                baseCtx.drawImage(croppedCanvas, 0, 0);
+            }
+            cropper.destroy();
+            cropper = null;
+        }
+        cropToggleBtn.classList.remove("active");
+        textSpan.innerText = "Attiva Taglierino";
+        imageToCrop.style.display = "none";
+        pCanvas.style.display = "block";
+        watermarkX = -1;
+        watermarkY = -1;
+        updateBaseAndPreview();
+    }
+});
+
+function updateBaseAndPreview() {
+    if (cropModeActive) return;
+
+    let workCanvas = document.createElement("canvas");
+    workCanvas.width = baseProcessedCanvas.width;
+    workCanvas.height = baseProcessedCanvas.height;
+    let workCtx = workCanvas.getContext("2d");
 
     const bright = document.getElementById("brightnessInput").value;
     const contrast = document.getElementById("contrastInput").value;
@@ -492,72 +579,98 @@ function applyEditorChanges() {
     document.getElementById("contrastVal").innerText = contrast;
     document.getElementById("satVal").innerText = sat;
 
-    pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
-    pCtx.filter = `brightness(${bright}%) contrast(${contrast}%) saturate(${sat}%)`;
-    pCtx.drawImage(canvas, 0, 0);
-    pCtx.filter = "none";
+    workCtx.filter = `brightness(${bright}%) contrast(${contrast}%) saturate(${sat}%)`;
+    workCtx.drawImage(baseProcessedCanvas, 0, 0);
+    workCtx.filter = "none";
 
     const wText = document.getElementById("watermarkText").value;
     if (wText) {
-        pCtx.fillStyle = document.getElementById("watermarkColor").value;
-        pCtx.font = `${Math.max(16, pCanvas.width / 25)}px sans-serif`;
-        pCtx.shadowColor = "rgba(0,0,0,0.8)";
-        pCtx.shadowBlur = 4;
+        const wSize = document.getElementById("watermarkSizeInput").value;
+        document.getElementById("watermarkSizeVal").innerText = wSize;
+
+        workCtx.fillStyle = document.getElementById("watermarkColor").value;
+        workCtx.font = `${wSize}px sans-serif`;
+        workCtx.shadowColor = "rgba(0,0,0,0.8)";
+        workCtx.shadowBlur = 4;
 
         if (watermarkX === -1 || watermarkY === -1) {
-            watermarkX = pCanvas.width - 150;
-            watermarkY = pCanvas.height - 40;
+            watermarkX = workCanvas.width - 180;
+            watermarkY = workCanvas.height - 40;
         }
-        pCtx.fillText(wText, watermarkX, watermarkY);
-        pCtx.shadowBlur = 0;
+        workCtx.fillText(wText, watermarkX, watermarkY);
+        workCtx.shadowBlur = 0;
+    }
+
+    if (!magicBrushActive) {
+        pCanvas.width = workCanvas.width;
+        pCanvas.height = workCanvas.height;
+        pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+        pCtx.drawImage(workCanvas, 0, 0);
+        pCanvas.style.display = "block";
     }
     updateLiveStats();
 }
 
-pCanvas.addEventListener("click", function (e) {
-    if (magicBrushActive || !cropper) return;
-    const rect = pCanvas.getBoundingClientRect();
-    const scaleX = pCanvas.width / rect.width;
-    const scaleY = pCanvas.height / rect.height;
-
-    watermarkX = (e.clientX - rect.left) * scaleX;
-    watermarkY = (e.clientY - rect.top) * scaleY;
-    applyEditorChanges();
-});
-
 document.getElementById("magicBtn").addEventListener("click", toggleMagicBrush);
 
 function toggleMagicBrush() {
+    if (cropModeActive) {
+        alert("Prima disattiva il taglierino cliccando sull'icona.");
+        return;
+    }
     magicBrushActive = !magicBrushActive;
     const instruction = document.getElementById("magicInstruction");
     const brushGroup = document.getElementById("brushSizeGroup");
     const button = document.getElementById("magicBtn");
 
     if (magicBrushActive) {
+        updateBaseAndPreview();
         instruction.style.display = "block";
         brushGroup.classList.add("active");
-        button.innerText = "🪄 Disattiva Pennello Cancella";
+        button.innerText = "✨ Disattiva Pennello Magico";
     } else {
         instruction.style.display = "none";
         brushGroup.classList.remove("active");
         button.innerText = "🪄 Attiva Pennello Cancella Sfondo";
+        updateBaseAndPreview();
     }
 }
 
+// Gestione interazione mouse sul Canvas (Pennello o Spostamento Filigrana)
 pCanvas.addEventListener("mousedown", function (e) {
-    if (!magicBrushActive) return;
-    isDrawing = true;
-    eraseAt(e);
+    if (magicBrushActive) {
+        isDrawing = true;
+        eraseAt(e);
+    } else {
+        isDraggingWatermark = true;
+        moveWatermark(e);
+    }
 });
 
 pCanvas.addEventListener("mousemove", function (e) {
-    if (!magicBrushActive || !isDrawing) return;
-    eraseAt(e);
+    if (magicBrushActive && isDrawing) {
+        eraseAt(e);
+    } else if (!magicBrushActive && isDraggingWatermark) {
+        moveWatermark(e);
+    }
 });
 
 window.addEventListener("mouseup", function () {
     isDrawing = false;
+    isDraggingWatermark = false;
 });
+
+function moveWatermark(e) {
+    const wText = document.getElementById("watermarkText").value;
+    if (!wText) return;
+
+    const rect = pCanvas.getBoundingClientRect();
+    const scaleX = pCanvas.width / rect.width;
+    const scaleY = pCanvas.height / rect.height;
+    watermarkX = (e.clientX - rect.left) * scaleX;
+    watermarkY = (e.clientY - rect.top) * scaleY;
+    updateBaseAndPreview();
+}
 
 function eraseAt(e) {
     const rect = pCanvas.getBoundingClientRect();
@@ -581,9 +694,26 @@ document.getElementById("brushSize").addEventListener("input", function () {
 });
 
 document.getElementById("rotateBtn").addEventListener("click", function () {
-    if (cropper) {
+    if (cropModeActive && cropper) {
         cropper.rotate(90);
-        setTimeout(applyEditorChanges, 150);
+    } else {
+        let tempCanvas = document.createElement("canvas");
+        let tempCtx = tempCanvas.getContext("2d");
+        tempCanvas.width = baseProcessedCanvas.height;
+        tempCanvas.height = baseProcessedCanvas.width;
+        
+        tempCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
+        tempCtx.rotate(Math.PI / 2);
+        tempCtx.drawImage(baseProcessedCanvas, -baseProcessedCanvas.width / 2, -baseProcessedCanvas.height / 2);
+
+        baseProcessedCanvas.width = tempCanvas.width;
+        baseProcessedCanvas.height = tempCanvas.height;
+        baseCtx.clearRect(0, 0, baseProcessedCanvas.width, baseProcessedCanvas.height);
+        baseCtx.drawImage(tempCanvas, 0, 0);
+
+        watermarkX = -1;
+        watermarkY = -1;
+        updateBaseAndPreview();
     }
 });
 
@@ -594,23 +724,37 @@ function resetEditor() {
     document.getElementById("contrastInput").value = 100;
     document.getElementById("saturationInput").value = 100;
     document.getElementById("watermarkText").value = "";
+    document.getElementById("watermarkSizeInput").value = 24;
     watermarkX = -1;
     watermarkY = -1;
-    magicBrushActive = false;
-    document.getElementById("magicInstruction").style.display = "none";
-    document.getElementById("brushSizeGroup").classList.remove("active");
-    document.getElementById("magicBtn").innerText = "🪄 Attiva Pennello Cancella Sfondo";
-    if (cropper) {
-        cropper.reset();
+    
+    if (magicBrushActive) toggleMagicBrush();
+    if (cropModeActive) {
+        cropModeActive = false;
+        cropToggleBtn.classList.remove("active");
+        document.getElementById("cropToggleText").innerText = "Attiva Taglierino";
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        imageToCrop.style.display = "none";
+        pCanvas.style.display = "block";
     }
-    applyEditorChanges();
+
+    baseProcessedCanvas.width = currentRawImage.width;
+    baseProcessedCanvas.height = currentRawImage.height;
+    baseCtx.clearRect(0, 0, baseProcessedCanvas.width, baseProcessedCanvas.height);
+    baseCtx.drawImage(currentRawImage, 0, 0);
+
+    updateBaseAndPreview();
 }
 
-document.getElementById("brightnessInput").addEventListener("input", applyEditorChanges);
-document.getElementById("contrastInput").addEventListener("input", applyEditorChanges);
-document.getElementById("saturationInput").addEventListener("input", applyEditorChanges);
-document.getElementById("watermarkText").addEventListener("input", applyEditorChanges);
-document.getElementById("watermarkColor").addEventListener("input", applyEditorChanges);
+document.getElementById("brightnessInput").addEventListener("input", updateBaseAndPreview);
+document.getElementById("contrastInput").addEventListener("input", updateBaseAndPreview);
+document.getElementById("saturationInput").addEventListener("input", updateBaseAndPreview);
+document.getElementById("watermarkText").addEventListener("input", updateBaseAndPreview);
+document.getElementById("watermarkSizeInput").addEventListener("input", updateBaseAndPreview);
+document.getElementById("watermarkColor").addEventListener("input", updateBaseAndPreview);
 
 document.getElementById("qualityInput").addEventListener("input", function () {
     document.getElementById("qualityVal").innerText = this.value;
@@ -620,13 +764,16 @@ document.getElementById("qualityInput").addEventListener("input", function () {
 document.getElementById("formatSelect").addEventListener("change", updateLiveStats);
 
 function updateLiveStats() {
-    if (!pCanvas.width) return;
-    document.getElementById("dimensionInfo").innerText = `Dimensioni: ${pCanvas.width} x ${pCanvas.height} px`;
+    if (!pCanvas.width && !baseProcessedCanvas.width) return;
+    const targetC = cropModeActive && cropper ? cropper.getCroppedCanvas() : pCanvas;
+    if (!targetC) return;
+    
+    document.getElementById("dimensionInfo").innerText = `Dimensioni: ${targetC.width} x ${targetC.height} px`;
     const quality = Number(document.getElementById("qualityInput").value) / 100;
     const format = document.getElementById("formatSelect").value;
 
     try {
-        const dataUrl = pCanvas.toDataURL(format, quality);
+        const dataUrl = targetC.toDataURL(format, quality);
         const sizeKB = Math.round(dataUrl.length * 0.75 / 1024);
         document.getElementById("sizeInfo").innerText = `Peso st.: ~${sizeKB} KB`;
     } catch (error) {
@@ -637,6 +784,26 @@ function updateLiveStats() {
 document.getElementById("confirmBtn").addEventListener("click", confirmFinalImage);
 
 function confirmFinalImage() {
+    if (cropModeActive && cropper) {
+        const croppedCanvas = cropper.getCroppedCanvas({ imageSmoothingEnabled: true, imageSmoothingQuality: "high" });
+        if (croppedCanvas) {
+            baseProcessedCanvas.width = croppedCanvas.width;
+            baseProcessedCanvas.height = croppedCanvas.height;
+            baseCtx.clearRect(0, 0, baseProcessedCanvas.width, baseProcessedCanvas.height);
+            baseCtx.drawImage(croppedCanvas, 0, 0);
+        }
+        cropper.destroy();
+        cropper = null;
+        cropModeActive = false;
+        cropToggleBtn.classList.remove("active");
+        document.getElementById("cropToggleText").innerText = "Attiva Taglierino";
+        imageToCrop.style.display = "none";
+        pCanvas.style.display = "block";
+        watermarkX = -1;
+        watermarkY = -1;
+        updateBaseAndPreview();
+    }
+
     if (!pCanvas.width) {
         alert("Prima carica un'immagine.");
         return;
