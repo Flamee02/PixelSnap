@@ -386,7 +386,6 @@ cropToggleBtn.addEventListener("click", function () {
     }
 });
 
-// Gestione Testi Multipli
 document.getElementById("addTextBtn").addEventListener("click", () => {
     textElements.push({
         text: "Nuova Parola",
@@ -424,7 +423,6 @@ function renderTextControls() {
         container.appendChild(card);
     });
 
-    // Event listeners per i controlli dinamici generati
     container.querySelectorAll(".text-val-input").forEach(input => {
         input.addEventListener("input", (e) => {
             textElements[e.target.dataset.index].text = e.target.value;
@@ -481,7 +479,6 @@ function updateBaseAndPreview() {
     workCtx.drawImage(baseProcessedCanvas, 0, 0);
     workCtx.filter = "none";
     
-    // Disegno di tutti i testi personalizzati con rotazione e opacità
     textElements.forEach(el => {
         if (!el.text) return;
         workCtx.save();
@@ -491,7 +488,6 @@ function updateBaseAndPreview() {
         workCtx.shadowColor = "rgba(0,0,0,0.8)";
         workCtx.shadowBlur = 4;
         
-        // Spostamento e rotazione dal centro del testo
         workCtx.translate(el.x, el.y);
         workCtx.rotate((el.rotation * Math.PI) / 180);
         workCtx.fillText(el.text, 0, 0);
@@ -611,10 +607,8 @@ pCanvas.addEventListener("mousedown", (e) => {
         isDrawing = true;
         eraseAt(x, y);
     } else {
-        // Cerca se si clicca vicino a qualche elemento di testo per trascinarlo
         for (let i = textElements.length - 1; i >= 0; i--) {
             let el = textElements[i];
-            // Stima grossolana dell'area del testo per il click di selezione
             if (x >= el.x - 10 && x <= el.x + (el.text.length * el.size * 0.6) + 10 && y >= el.y - el.size && y <= el.y + 10) {
                 draggingTextIndex = i;
                 dragOffsetX = x - el.x;
@@ -646,121 +640,159 @@ function applyMagicWand(startX, startY) {
     if (refA === 0) return;
 
     let visited = new Uint8Array(width * height);
-    let queue = [{x: startX, y: startY}];
-    visited[startY * width + startX] = 1;
-
-    while (queue.length > 0) {
-        let {x, y} = queue.pop();
-        let idx = y * width + x;
-        let i = idx * 4;
-
-        let r = data[i], g = data[i + 1], b = data[i + 2];
-        let diff = Math.abs(r - refR) + Math.abs(g - refG) + Math.abs(b - refB);
-
-        if (diff <= tolerance * 1.5) {
-            data[i + 3] = 0;
-
-            const neighbors = [{x: x+1, y}, {x: x-1, y}, {x, y: y+1}, {x, y: y-1}];
-            for (let n of neighbors) {
-                if (n.x >= 0 && n.x < width && n.y >= 0 && n.y < height) {
-                    let nIdx = n.y * width + n.x;
-                    if (visited[nIdx] === 0) {
-                        visited[nIdx] = 1;
-                        queue.push(n);
-                    }
-                }
-            }
+    let stack = [{x: startX, y: startY}];
+    
+    while(stack.length > 0) {
+        let curr = stack.pop();
+        let cx = curr.x;
+        let cy = curr.y;
+        
+        if (cx < 0 || cx >= width || cy < 0 || cy >= height) continue;
+        let pixelIndex = cy * width + cx;
+        if (visited[pixelIndex]) continue;
+        
+        visited[pixelIndex] = 1;
+        let idx = pixelIndex * 4;
+        
+        let r = data[idx], g = data[idx+1], b = data[idx+2], a = data[idx+3];
+        let diff = Math.abs(r - refR) + Math.abs(g - refG) + Math.abs(b - refB) + Math.abs(a - refA);
+        
+        if (diff <= tolerance * 4) {
+            data[idx + 3] = 0; // Rende trasparente il pixel
+            
+            stack.push({x: cx + 1, y: cy});
+            stack.push({x: cx - 1, y: cy});
+            stack.push({x: cx, y: cy + 1});
+            stack.push({x: cx, y: cy - 1});
         }
     }
-
+    
     baseCtx.putImageData(imgData, 0, 0);
     pushState();
     updateBaseAndPreview();
 }
 
 function eraseAt(x, y) {
+    let brushSizePx = Number(document.getElementById("brushSize").value);
     baseCtx.save();
     baseCtx.globalCompositeOperation = "destination-out";
     baseCtx.beginPath();
-    baseCtx.arc(x, y, Number(document.getElementById("brushSize").value), 0, Math.PI * 2);
+    baseCtx.arc(x, y, brushSizePx, 0, Math.PI * 2, false);
     baseCtx.fill();
     baseCtx.restore();
     updateBaseAndPreview();
 }
 
-document.getElementById("rotateBtn").addEventListener("click", function () {
-    if (cropModeActive && cropper) { cropper.rotate(90); }
-    else {
-        let tempC = document.createElement("canvas"), tempCtx = tempC.getContext("2d");
-        tempC.width = baseProcessedCanvas.height; tempC.height = baseProcessedCanvas.width;
-        tempCtx.translate(tempC.width / 2, tempC.height / 2);
-        tempCtx.rotate(Math.PI / 2);
-        tempCtx.drawImage(baseProcessedCanvas, -baseProcessedCanvas.width / 2, -baseProcessedCanvas.height / 2);
-        baseProcessedCanvas.width = tempC.width; baseProcessedCanvas.height = tempC.height;
-        baseCtx.clearRect(0, 0, baseProcessedCanvas.width, baseProcessedCanvas.height);
-        baseCtx.drawImage(tempC, 0, 0);
-        pushState();
-        updateBaseAndPreview();
-    }
-});
+function updateLiveStats() {
+    document.getElementById("dimensionInfo").innerText = `Dimensioni: ${baseProcessedCanvas.width} x ${baseProcessedCanvas.height} px`;
+    baseProcessedCanvas.toBlob(blob => {
+        if (blob) {
+            let kb = Math.round(blob.size / 1024);
+            document.getElementById("sizeInfo").innerText = `Peso st.: ~${kb} KB`;
+        }
+    }, document.getElementById("formatSelect").value, Number(document.getElementById("qualityInput").value) / 100);
+}
 
-document.getElementById("resetBtn").addEventListener("click", () => {
-    document.getElementById("brightnessInput").value = 100;
-    document.getElementById("contrastInput").value = 100;
-    document.getElementById("saturationInput").value = 100;
-    textElements = [];
-    renderTextControls();
-    setTool(null);
-    if (cropModeActive) { cropModeActive = false; cropToggleBtn.classList.remove("active"); document.getElementById("cropToggleText").innerText = "Attiva Taglierino"; if(cropper){cropper.destroy();cropper=null;} imageToCrop.style.display="none"; pCanvas.style.display="block"; }
-    baseProcessedCanvas.width = currentRawImage.width; baseProcessedCanvas.height = currentRawImage.height;
+document.getElementById("brightnessInput").addEventListener("input", updateBaseAndPreview);
+document.getElementById("contrastInput").addEventListener("input", updateBaseAndPreview);
+document.getElementById("saturationInput").addEventListener("input", updateBaseAndPreview);
+document.getElementById("qualityInput").addEventListener("input", updateLiveStats);
+document.getElementById("formatSelect").addEventListener("change", updateLiveStats);
+
+document.getElementById("rotateBtn").addEventListener("click", () => {
+    if (cropModeActive) { alert("Disattiva prima il taglierino."); return; }
+    let tempCanvas = document.createElement("canvas");
+    tempCanvas.width = baseProcessedCanvas.width;
+    tempCanvas.height = baseProcessedCanvas.height;
+    let tempCtx = tempCanvas.getContext("2d");
+    tempCtx.drawImage(baseProcessedCanvas, 0, 0);
+
+    baseProcessedCanvas.width = tempCanvas.height;
+    baseProcessedCanvas.height = tempCanvas.width;
     baseCtx.clearRect(0, 0, baseProcessedCanvas.width, baseProcessedCanvas.height);
-    baseCtx.drawImage(currentRawImage, 0, 0);
+    baseCtx.save();
+    baseCtx.translate(baseProcessedCanvas.width / 2, baseProcessedCanvas.height / 2);
+    baseCtx.rotate(Math.PI / 2);
+    baseCtx.drawImage(tempCanvas, -tempCanvas.width / 2, -tempCanvas.height / 2);
+    baseCtx.restore();
+
     pushState();
     updateBaseAndPreview();
 });
 
-["brightnessInput", "contrastInput", "saturationInput"].forEach(id => {
-    document.getElementById(id).addEventListener("input", updateBaseAndPreview);
-});
-
-document.getElementById("qualityInput").addEventListener("input", function () { document.getElementById("qualityVal").innerText = this.value; updateLiveStats(); });
-document.getElementById("formatSelect").addEventListener("change", updateLiveStats);
-
-function updateLiveStats() {
-    if (!pCanvas.width && !baseProcessedCanvas.width) return;
-    const targetC = cropModeActive && cropper ? cropper.getCroppedCanvas() : pCanvas;
-    if (!targetC) return;
-    document.getElementById("dimensionInfo").innerText = `Dimensioni: ${targetC.width} x ${targetC.height} px`;
-    try {
-        const sizeKB = Math.round(targetC.toDataURL(document.getElementById("formatSelect").value, Number(document.getElementById("qualityInput").value) / 100).length * 0.75 / 1024);
-        document.getElementById("sizeInfo").innerText = `Peso st.: ~${sizeKB} KB`;
-    } catch(e) {}
-}
-
-document.getElementById("confirmBtn").addEventListener("click", function () {
-    if (cropModeActive && cropper) {
-        const croppedCanvas = cropper.getCroppedCanvas({ imageSmoothingEnabled: true, imageSmoothingQuality: "high" });
-        if (croppedCanvas) {
-            baseProcessedCanvas.width = croppedCanvas.width; baseProcessedCanvas.height = croppedCanvas.height;
-            baseCtx.clearRect(0, 0, baseProcessedCanvas.width, baseProcessedCanvas.height);
-            baseCtx.drawImage(croppedCanvas, 0, 0);
-            pushState();
-        }
-        cropper.destroy(); cropper = null; cropModeActive = false;
-        cropToggleBtn.classList.remove("active"); document.getElementById("cropToggleText").innerText = "Attiva Taglierino";
-        imageToCrop.style.display = "none"; pCanvas.style.display = "block";
+document.getElementById("resetBtn").addEventListener("click", () => {
+    if (confirm("Vuoi davvero resettare tutte le modifiche apportate?")) {
+        baseProcessedCanvas.width = currentRawImage.width;
+        baseProcessedCanvas.height = currentRawImage.height;
+        baseCtx.clearRect(0, 0, baseProcessedCanvas.width, baseProcessedCanvas.height);
+        baseCtx.drawImage(currentRawImage, 0, 0);
+        textElements = [];
+        renderTextControls();
+        document.getElementById("brightnessInput").value = 100;
+        document.getElementById("contrastInput").value = 100;
+        document.getElementById("saturationInput").value = 100;
+        if (cropModeActive) { cropToggleBtn.click(); }
+        pushState();
+        setTool(null);
         updateBaseAndPreview();
     }
-    if (!pCanvas.width) { alert("Prima carica un'immagine."); return; }
+});
+
+document.getElementById("confirmBtn").addEventListener("click", () => {
+    if (cropModeActive) {
+        alert("Conferma o chiudi prima il taglierino attivo.");
+        return;
+    }
+    
+    let finalCanvas = document.createElement("canvas");
+    finalCanvas.width = baseProcessedCanvas.width;
+    finalCanvas.height = baseProcessedCanvas.height;
+    let finalCtx = finalCanvas.getContext("2d");
+    
+    const bright = document.getElementById("brightnessInput").value;
+    const contrast = document.getElementById("contrastInput").value;
+    const sat = document.getElementById("saturationInput").value;
+    finalCtx.filter = `brightness(${bright}%) contrast(${contrast}%) saturate(${sat}%)`;
+    finalCtx.drawImage(baseProcessedCanvas, 0, 0);
+    finalCtx.filter = "none";
+    
+    textElements.forEach(el => {
+        if (!el.text) return;
+        finalCtx.save();
+        finalCtx.globalAlpha = el.opacity / 100;
+        finalCtx.fillStyle = el.color;
+        finalCtx.font = `bold ${el.size}px sans-serif`;
+        finalCtx.shadowColor = "rgba(0,0,0,0.8)";
+        finalCtx.shadowBlur = 4;
+        finalCtx.translate(el.x, el.y);
+        finalCtx.rotate((el.rotation * Math.PI) / 180);
+        finalCtx.fillText(el.text, 0, 0);
+        finalCtx.restore();
+    });
+
     const format = document.getElementById("formatSelect").value;
-    const dataUrl = pCanvas.toDataURL(format, Number(document.getElementById("qualityInput").value) / 100);
+    const quality = Number(document.getElementById("qualityInput").value) / 100;
+    const dataUrl = finalCanvas.toDataURL(format, quality);
+
+    document.getElementById("editorPanel").style.display = "none";
+    const resultBox = document.getElementById("resultBox");
+    resultBox.style.display = "block";
     document.getElementById("finalPreviewImg").src = dataUrl;
-    let ext = format.split("/")[1] === "jpeg" ? "jpg" : format.split("/")[1];
+
+    finalCanvas.toBlob(blob => {
+        if (blob) {
+            let kb = Math.round(blob.size / 1024);
+            document.getElementById("finalStats").innerText = `Risoluzione: ${finalCanvas.width}x${finalCanvas.height} px — Peso effettivo: ${kb} KB`;
+        }
+    }, format, quality);
+
+    let ext = "png";
+    if (format === "image/jpeg") ext = "jpg";
+    if (format === "image/webp") ext = "webp";
+
     const downloadBtn = document.getElementById("downloadBtn");
-    downloadBtn.href = dataUrl; downloadBtn.download = `${originalFileName}-modificato.${ext}`;
-    document.getElementById("finalStats").innerText = `Formato: ${ext.toUpperCase()} | Dimensioni: ${pCanvas.width}x${pCanvas.height}px | Peso: ~${Math.round(dataUrl.length * 0.75 / 1024)} KB`;
-    editorPanel.style.display = "none";
-    document.getElementById("resultBox").style.display = "block";
+    downloadBtn.href = dataUrl;
+    downloadBtn.download = `${originalFileName}_snaplix.${ext}`;
 });
 
 dropZone.addEventListener("dragover", (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--primary)"; });
