@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PixelSnap - Editor Totale</title>
+    <title>SnapLix - Editor Totale</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -11,346 +11,65 @@
             --bg-base: #0f172a;
             --bg-card: #1e293b;
             --primary: #3b82f6;
-            --primary-hover: #2563eb;
             --success: #10b981;
-            --success-hover: #059669;
             --purple: #8b5cf6;
-            --purple-hover: #7c3aed;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border: #334155;
         }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: var(--bg-base);
-            color: var(--text-main);
-            margin: 0;
-            min-height: 100vh;
-        }
-
-        header {
-            width: 100%;
-            padding: 20px 0;
-            text-align: center;
-            border-bottom: 1px solid var(--border);
-            background: var(--bg-card);
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 1.6rem;
-            color: var(--primary);
-        }
-
-        header p {
-            margin: 5px 0 0;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .ad-slot {
-            background: var(--bg-card);
-            border: 1px dashed var(--border);
-            border-radius: 8px;
-            padding: 15px;
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-bottom: 20px;
-        }
-
-        .drop-zone {
-            background: var(--bg-card);
-            border: 2px dashed var(--border);
-            border-radius: 16px;
-            padding: 40px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .drop-zone:hover {
-            border-color: var(--primary);
-        }
-
-        .drop-zone p {
-            margin: 10px 0 0;
-            color: var(--text-muted);
-        }
-
-        #fileInput {
-            display: none;
-        }
-
-        .editor-panel {
-            display: none;
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid var(--border);
-        }
-
-        .container-header {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 8px;
-        }
-
-        .btn-crop-toggle {
-            background: #334155;
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: 0.2s;
-        }
-
-        .btn-crop-toggle.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .img-container {
-            width: 100%;
-            height: 380px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            background: repeating-conic-gradient(#334155 0% 25%, #1e293b 0% 50%);
-            background-size: 16px 16px;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 15px;
-        }
-
-        #imageToCrop {
-            display: none;
-            max-width: 100%;
-            max-height: 100%;
-        }
-
-        #previewCanvas {
-            display: none;
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            cursor: crosshair;
-        }
-
-        #brushSizeGroup {
-            display: none;
-            background: #0f172a;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 12px 15px;
-            margin-bottom: 15px;
-        }
-
-        #brushSizeGroup.active {
-            display: block;
-        }
-
-        #brushSizeGroup label {
-            display: block;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-        }
-
-        .instruction-box {
-            background: rgba(139, 92, 246, 0.15);
-            border: 1px solid var(--purple);
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            color: #d8b4fe;
-            text-align: center;
-            display: none;
-            margin-bottom: 15px;
-        }
-
-        .live-stats {
-            background: #0f172a;
-            border: 1px solid var(--border);
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-
-        .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .tools-row {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-tool {
-            flex: 1;
-            background: #334155;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        .btn-tool:hover {
-            background: #475569;
-        }
-
-        .btn-magic {
-            width: 100%;
-            background: var(--purple);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 0.95rem;
-            cursor: pointer;
-        }
-
-        .btn-magic:hover {
-            background: var(--purple-hover);
-        }
-
-        .section-title {
-            font-size: 0.9rem;
-            font-weight: bold;
-            color: var(--primary);
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 5px;
-            margin-top: 5px;
-        }
-
-        .control-group label {
-            display: block;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 5px;
-        }
-
-        .control-group input[type="text"],
-        .control-group input[type="color"],
-        .control-group select {
-            width: 100%;
-            padding: 10px;
-            background: #0f172a;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: white;
-            font-family: inherit;
-        }
-
-        input[type="range"] {
-            width: 100%;
-            height: 6px;
-            padding: 0;
-            margin: 8px 0;
-            cursor: pointer;
-            accent-color: var(--primary);
-        }
-
-        .btn-confirm {
-            display: block;
-            width: 100%;
-            background: var(--success);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-
-        .btn-confirm:hover {
-            background: var(--success-hover);
-        }
-
-        .result-box {
-            display: none;
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid var(--border);
-            text-align: center;
-        }
-
-        .result-box h3 {
-            color: var(--success);
-        }
-
-        .result-preview img {
-            max-width: 100%;
-            max-height: 300px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-        }
-
-        .btn-download {
-            display: block;
-            width: 100%;
-            background: var(--primary);
-            color: white;
-            padding: 14px;
-            border-radius: 10px;
-            font-weight: bold;
-            text-decoration: none;
-            margin-top: 15px;
-        }
-
-        .click-hint {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            font-style: italic;
-            margin-top: 4px;
-        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-base); color: var(--text-main); margin: 0; min-height: 100vh; }
+        header { width: 100%; padding: 20px 0; text-align: center; border-bottom: 1px solid var(--border); background: var(--bg-card); }
+        header h1 { margin: 0; font-size: 1.6rem; color: var(--primary); }
+        header p { margin: 5px 0 0; color: var(--text-muted); font-size: 0.9rem; }
+        .container { width: 100%; max-width: 700px; margin: 0 auto; padding: 20px; }
+        .drop-zone { background: var(--bg-card); border: 2px dashed var(--border); border-radius: 16px; padding: 40px 20px; text-align: center; cursor: pointer; transition: 0.2s; }
+        .drop-zone:hover { border-color: var(--primary); }
+        .drop-zone p { margin: 10px 0 0; color: var(--text-muted); }
+        #fileInput { display: none; }
+        .editor-panel { display: none; background: var(--bg-card); border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
+        .container-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .history-controls { display: flex; gap: 6px; }
+        .btn-history { background: #334155; color: white; border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s; }
+        .btn-history:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-history:not(:disabled):hover { background: var(--primary); border-color: var(--primary); }
+        .btn-crop-toggle { background: #334155; color: var(--text-muted); border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .btn-crop-toggle.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .img-container { width: 100%; height: 380px; display: flex; align-items: center; justify-content: center; position: relative; background: repeating-conic-gradient(#334155 0% 25%, #1e293b 0% 50%); background-size: 16px 16px; border-radius: 10px; overflow: hidden; margin-bottom: 15px; }
+        #imageToCrop { display: none; max-width: 100%; max-height: 100%; }
+        #previewCanvas { display: block; max-width: 100%; max-height: 100%; object-fit: contain; cursor: crosshair; }
+        #brushSizeGroup, #toleranceGroup { display: none; background: #0f172a; border: 1px solid var(--border); border-radius: 10px; padding: 12px 15px; margin-bottom: 15px; }
+        #brushSizeGroup.active, #toleranceGroup.active { display: block; }
+        #brushSizeGroup label, #toleranceGroup label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+        .instruction-box { background: rgba(59, 130, 246, 0.15); border: 1px solid var(--primary); padding: 10px; border-radius: 8px; font-size: 0.85rem; color: #93c5fd; text-align: center; display: none; margin-bottom: 15px; }
+        .instruction-box.magic-active { background: rgba(139, 92, 246, 0.15); border-color: var(--purple); color: #d8b4fe; }
+        .live-stats { background: #0f172a; border: 1px solid var(--border); padding: 10px 15px; border-radius: 8px; font-size: 0.85rem; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .controls { display: flex; flex-direction: column; gap: 15px; }
+        .tools-row { display: flex; gap: 10px; }
+        .btn-tool { flex: 1; background: #334155; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-wand, .btn-magic { width: 100%; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; color: white; transition: 0.2s; background: #334155; }
+        .btn-wand.active { background: linear-gradient(135deg, #0284c7, #2563eb); }
+        .btn-magic.active { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .section-title { font-size: 0.9rem; font-weight: bold; color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 5px; margin-top: 5px; }
+        .control-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; }
+        .control-group input[type="text"], .control-group input[type="color"], .control-group select { width: 100%; padding: 10px; background: #0f172a; border: 1px solid var(--border); border-radius: 8px; color: white; font-family: inherit; }
+        input[type="range"] { width: 100%; height: 6px; padding: 0; margin: 8px 0; cursor: pointer; accent-color: var(--primary); }
+        .btn-confirm { display: block; width: 100%; background: var(--success); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        .result-box { display: none; background: var(--bg-card); border-radius: 16px; padding: 20px; border: 1px solid var(--border); text-align: center; }
+        .result-box h3 { color: var(--success); }
+        .result-preview img { max-width: 100%; max-height: 300px; border-radius: 8px; border: 1px solid var(--border); }
+        .btn-download { display: block; width: 100%; background: var(--primary); color: white; padding: 14px; border-radius: 10px; font-weight: bold; text-decoration: none; margin-top: 15px; }
+        .click-hint { font-size: 0.8rem; color: var(--text-muted); font-style: italic; margin-top: 4px; }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>⚡ PixelSnap</h1>
-    <p>Editor Totale con Ritaglio, Pennello, Colori e Filigrana</p>
+    <h1>⚡ SnapLix</h1>
+    <p>Editor Immagini Rapido e Pulito</p>
 </header>
 
 <div class="container">
-    
-    <div class="ad-slot">
-        <p style="margin:0; margin-bottom:5px;">Spazio Pubblicitario Top</p>
-    </div>
-
     <div id="dropZone" class="drop-zone">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -363,9 +82,11 @@
 
     <div id="editorPanel" class="editor-panel">
         <div class="container-header">
-            <button id="cropToggleBtn" class="btn-crop-toggle" title="Attiva/Disattiva Taglierino">
-                ✂️ <span id="cropToggleText">Attiva Taglierino</span>
-            </button>
+            <div class="history-controls">
+                <button id="undoBtn" class="btn-history" disabled>↩️ Indietro</button>
+                <button id="redoBtn" class="btn-history" disabled>↪️ Avanti</button>
+            </div>
+            <button id="cropToggleBtn" class="btn-crop-toggle">✂️ <span id="cropToggleText">Attiva Taglierino</span></button>
         </div>
 
         <div class="img-container">
@@ -373,15 +94,16 @@
             <canvas id="previewCanvas"></canvas>
         </div>
 
-        <div id="magicInstruction" class="instruction-box">
-            🪄 <b>Pennello Magico Attivo:</b> trascina il mouse sull'immagine per cancellare.
-        </div>
+        <div id="toolInstruction" class="instruction-box">ℹ️ Nessuno strumento di rimozione attivo. Clicca su "Bacchetta Magica" o "Gomma" per iniziare.</div>
 
         <div id="brushSizeGroup" class="control-group">
-            <label>
-                🪄 Dimensione Pennello: <span id="brushSizeVal">20</span> px
-            </label>
+            <label>🪄 Dimensione Gomma: <span id="brushSizeVal">20</span> px</label>
             <input type="range" id="brushSize" min="5" max="100" value="20" step="1">
+        </div>
+
+        <div id="toleranceGroup" class="control-group" style="background:#0f172a; border:1px solid var(--border); border-radius:10px; padding:12px 15px; margin-bottom:15px;">
+            <label>✨ Tolleranza Bacchetta Magica: <span id="toleranceVal">40</span></label>
+            <input type="range" id="toleranceInput" min="5" max="120" value="40" step="1">
         </div>
 
         <div class="live-stats">
@@ -394,51 +116,25 @@
                 <button class="btn-tool" id="rotateBtn">🔄 Ruota</button>
                 <button class="btn-tool" id="resetBtn">❌ Reset Tutto</button>
             </div>
-
-            <button class="btn-magic" id="magicBtn">🪄 Attiva Pennello Cancella Sfondo</button>
+            <button class="btn-wand" id="wandBtn">🪄 Attiva Bacchetta Magica</button>
+            <button class="btn-magic" id="magicBtn">🪄 Attiva Gomma Manuale</button>
 
             <div class="section-title">🎨 Regolazioni Colore</div>
-
-            <div class="control-group">
-                <label>Luminosità: <span id="brightVal">100</span>%</label>
-                <input type="range" id="brightnessInput" min="0" max="200" value="100" step="1">
-            </div>
-
-            <div class="control-group">
-                <label>Contrasto: <span id="contrastVal">100</span>%</label>
-                <input type="range" id="contrastInput" min="0" max="200" value="100" step="1">
-            </div>
-
-            <div class="control-group">
-                <label>Saturazione: <span id="satVal">100</span>%</label>
-                <input type="range" id="saturationInput" min="0" max="200" value="100" step="1">
-            </div>
+            <div class="control-group"><label>Luminosità: <span id="brightVal">100</span>%</label><input type="range" id="brightnessInput" min="0" max="200" value="100" step="1"></div>
+            <div class="control-group"><label>Contrasto: <span id="contrastVal">100</span>%</label><input type="range" id="contrastInput" min="0" max="200" value="100" step="1"></div>
+            <div class="control-group"><label>Saturazione: <span id="satVal">100</span>%</label><input type="range" id="saturationInput" min="0" max="200" value="100" step="1"></div>
 
             <div class="section-title">✍️ Filigrana</div>
-
             <div class="control-group">
                 <label>Testo Filigrana:</label>
-                <input type="text" id="watermarkText" placeholder="Es: © PixelSnap">
+                <input type="text" id="watermarkText" placeholder="Es: © SnapLix">
                 <div class="click-hint">💡 Trascina la filigrana direttamente sull'anteprima per spostarla.</div>
             </div>
-
-            <div class="control-group">
-                <label>Dimensione Testo: <span id="watermarkSizeVal">24</span> px</label>
-                <input type="range" id="watermarkSizeInput" min="10" max="150" value="24" step="1">
-            </div>
-
-            <div class="control-group">
-                <label>Colore Testo:</label>
-                <input type="color" id="watermarkColor" value="#ffffff">
-            </div>
+            <div class="control-group"><label>Dimensione Testo: <span id="watermarkSizeVal">24</span> px</label><input type="range" id="watermarkSizeInput" min="10" max="150" value="24" step="1"></div>
+            <div class="control-group"><label>Colore Testo:</label><input type="color" id="watermarkColor" value="#ffffff"></div>
 
             <div class="section-title">⚙️ Esportazione</div>
-
-            <div class="control-group">
-                <label>Qualità: <span id="qualityVal">90</span>%</label>
-                <input type="range" id="qualityInput" min="10" max="100" value="90" step="1">
-            </div>
-
+            <div class="control-group"><label>Qualità: <span id="qualityVal">90</span>%</label><input type="range" id="qualityInput" min="10" max="100" value="90" step="1"></div>
             <div class="control-group">
                 <label>Formato di salvataggio:</label>
                 <select id="formatSelect">
@@ -449,47 +145,32 @@
             </div>
         </div>
 
-        <div class="ad-slot" style="margin-top: 25px; margin-bottom: 0;">
-            <p style="margin:0; margin-bottom:5px;">Spazio Pubblicitario Bottom</p>
-        </div>
-
         <button class="btn-confirm" id="confirmBtn">✅ Conferma e genera finale</button>
     </div>
 
     <div id="resultBox" class="result-box">
         <h3>✨ Risultato Pronto</h3>
-        <div class="result-preview">
-            <img id="finalPreviewImg" alt="Anteprima Finale">
-        </div>
+        <div class="result-preview"><img id="finalPreviewImg" alt="Anteprima Finale"></div>
         <div id="finalStats" style="font-size:0.85rem;color:var(--text-muted);margin-top:10px;"></div>
         <a id="downloadBtn" class="btn-download">💾 Scarica Immagine Definitiva</a>
     </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-
 <script>
-let cropper = null;
-let originalFileName = "immagine";
-let cropModeActive = false;
-let magicBrushActive = false;
-let isDrawing = false;
-let isDraggingWatermark = false;
+let cropper = null, originalFileName = "immagine", cropModeActive = false;
+let activeTool = null;
+let isDrawing = false, isDraggingWatermark = false;
+let watermarkX = -1, watermarkY = -1;
 
-let watermarkX = -1;
-let watermarkY = -1;
+// GESTIONE DELLA CRONOLOGIA (HISTORY / UNDO & REDO)
+let historyStack = [];
+let historyIndex = -1;
+const MAX_HISTORY = 20;
 
-let baseProcessedCanvas = document.createElement("canvas");
-let baseCtx = baseProcessedCanvas.getContext("2d");
-let currentRawImage = new Image();
-
-const pCanvas = document.getElementById("previewCanvas");
-const pCtx = pCanvas.getContext("2d");
-const dropZone = document.getElementById("dropZone");
-const fileInput = document.getElementById("fileInput");
-const editorPanel = document.getElementById("editorPanel");
-const imageToCrop = document.getElementById("imageToCrop");
-const imgContainerEl = document.querySelector(".img-container");
+let baseProcessedCanvas = document.createElement("canvas"), baseCtx = baseProcessedCanvas.getContext("2d"), currentRawImage = new Image();
+const pCanvas = document.getElementById("previewCanvas"), pCtx = pCanvas.getContext("2d");
+const dropZone = document.getElementById("dropZone"), fileInput = document.getElementById("fileInput"), editorPanel = document.getElementById("editorPanel"), imageToCrop = document.getElementById("imageToCrop");
 
 dropZone.addEventListener("click", () => fileInput.click());
 fileInput.addEventListener("change", function() { handleImage(this); });
@@ -497,26 +178,24 @@ fileInput.addEventListener("change", function() { handleImage(this); });
 function handleImage(input) {
     const file = input.files && input.files[0];
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
-        alert("Seleziona un file immagine.");
-        return;
-    }
     originalFileName = file.name.replace(/\.[^/.]+$/, "") || "immagine";
-
     const reader = new FileReader();
     reader.onload = function (event) {
         currentRawImage.onload = function () {
             dropZone.style.display = "none";
             editorPanel.style.display = "block";
-
             baseProcessedCanvas.width = currentRawImage.width;
             baseProcessedCanvas.height = currentRawImage.height;
             baseCtx.clearRect(0, 0, baseProcessedCanvas.width, baseProcessedCanvas.height);
             baseCtx.drawImage(currentRawImage, 0, 0);
+            watermarkX = -1; watermarkY = -1;
+            
+            // Inizializza la cronologia con il primo stato dell'immagine
+            historyStack = [];
+            historyIndex = -1;
+            pushState();
 
-            watermarkX = -1;
-            watermarkY = -1;
-
+            setTool(null);
             updateBaseAndPreview();
         };
         currentRawImage.src = event.target.result;
@@ -524,346 +203,359 @@ function handleImage(input) {
     reader.readAsDataURL(file);
 }
 
+// Salva lo stato corrente nella history
+function pushState() {
+    historyIndex++;
+    // Se stavamo nel mezzo della cronologia, taglia gli stati futuri ("avanti")
+    historyStack = historyStack.slice(0, historyIndex);
+    
+    let stateCanvas = document.createElement("canvas");
+    stateCanvas.width = baseProcessedCanvas.width;
+    stateCanvas.height = baseProcessedCanvas.height;
+    let stateCtx = stateCanvas.getContext("2d");
+    stateCtx.drawImage(baseProcessedCanvas, 0, 0);
+    
+    historyStack.push(stateCanvas);
+    if (historyStack.length > MAX_HISTORY) {
+        historyStack.shift();
+        historyIndex--;
+    }
+    updateHistoryButtons();
+}
+
+function updateHistoryButtons() {
+    document.getElementById("undoBtn").disabled = historyIndex <= 0;
+    document.getElementById("redoBtn").disabled = historyIndex >= historyStack.length - 1;
+}
+
+// Pulsanti Annulla / Ripristina
+document.getElementById("undoBtn").addEventListener("click", () => {
+    if (historyIndex > 0) {
+        historyIndex--;
+        restoreState(historyStack[historyIndex]);
+    }
+});
+
+document.getElementById("redoBtn").addEventListener("click", () => {
+    if (historyIndex < historyStack.length - 1) {
+        historyIndex++;
+        restoreState(historyStack[historyIndex]);
+    }
+});
+
+function restoreState(canvasState) {
+    baseProcessedCanvas.width = canvasState.width;
+    baseProcessedCanvas.height = canvasState.height;
+    baseCtx.clearRect(0, 0, baseProcessedCanvas.width, baseProcessedCanvas.height);
+    baseCtx.drawImage(canvasState, 0, 0);
+    watermarkX = -1; watermarkY = -1;
+    updateBaseAndPreview();
+    updateHistoryButtons();
+}
+
 const cropToggleBtn = document.getElementById("cropToggleBtn");
 cropToggleBtn.addEventListener("click", function () {
-    if (magicBrushActive) {
-        alert("Disattiva prima il pennello magico.");
-        return;
-    }
     cropModeActive = !cropModeActive;
     const textSpan = document.getElementById("cropToggleText");
-
     if (cropModeActive) {
         cropToggleBtn.classList.add("active");
         textSpan.innerText = "Disattiva Taglierino";
         pCanvas.style.display = "none";
         imageToCrop.style.display = "block";
         imageToCrop.src = baseProcessedCanvas.toDataURL();
-
-        if (cropper) {
-            cropper.destroy();
-            cropper = null;
-        }
-
-        cropper = new Cropper(imageToCrop, {
-            aspectRatio: NaN,
-            viewMode: 1,
-            autoCrop: true,
-            responsive: true,
-            background: false,
-            movable: true,
-            zoomable: true,
-            rotatable: true,
-            scalable: true,
-            cropBoxMovable: true,
-            cropBoxResizable: true,
-        });
+        if (cropper) { cropper.destroy(); cropper = null; }
+        cropper = new Cropper(imageToCrop, { aspectRatio: NaN, viewMode: 1, autoCrop: true, responsive: true, background: false, movable: true, zoomable: true, rotatable: true, scalable: true, cropBoxMovable: true, cropBoxResizable: true });
     } else {
         if (cropper) {
-            const croppedCanvas = cropper.getCroppedCanvas({
-                imageSmoothingEnabled: true,
-                imageSmoothingQuality: "high"
-            });
+            const croppedCanvas = cropper.getCroppedCanvas({ imageSmoothingEnabled: true, imageSmoothingQuality: "high" });
             if (croppedCanvas) {
                 baseProcessedCanvas.width = croppedCanvas.width;
                 baseProcessedCanvas.height = croppedCanvas.height;
                 baseCtx.clearRect(0, 0, baseProcessedCanvas.width, baseProcessedCanvas.height);
                 baseCtx.drawImage(croppedCanvas, 0, 0);
+                pushState(); // Registra lo stato ritagliato nella cronologia
             }
-            cropper.destroy();
-            cropper = null;
+            cropper.destroy(); cropper = null;
         }
         cropToggleBtn.classList.remove("active");
         textSpan.innerText = "Attiva Taglierino";
         imageToCrop.style.display = "none";
         pCanvas.style.display = "block";
-        watermarkX = -1;
-        watermarkY = -1;
+        watermarkX = -1; watermarkY = -1;
+        setTool(null);
         updateBaseAndPreview();
     }
 });
 
 function updateBaseAndPreview() {
     if (cropModeActive) return;
-
     let workCanvas = document.createElement("canvas");
-    workCanvas.width = baseProcessedCanvas.width;
-    workCanvas.height = baseProcessedCanvas.height;
+    workCanvas.width = baseProcessedCanvas.width; workCanvas.height = baseProcessedCanvas.height;
     let workCtx = workCanvas.getContext("2d");
-
     const bright = document.getElementById("brightnessInput").value;
     const contrast = document.getElementById("contrastInput").value;
     const sat = document.getElementById("saturationInput").value;
-
     document.getElementById("brightVal").innerText = bright;
     document.getElementById("contrastVal").innerText = contrast;
     document.getElementById("satVal").innerText = sat;
-
     workCtx.filter = `brightness(${bright}%) contrast(${contrast}%) saturate(${sat}%)`;
     workCtx.drawImage(baseProcessedCanvas, 0, 0);
     workCtx.filter = "none";
-
+    
     const wText = document.getElementById("watermarkText").value;
     if (wText) {
         const wSize = document.getElementById("watermarkSizeInput").value;
         document.getElementById("watermarkSizeVal").innerText = wSize;
-
         workCtx.fillStyle = document.getElementById("watermarkColor").value;
         workCtx.font = `${wSize}px sans-serif`;
         workCtx.shadowColor = "rgba(0,0,0,0.8)";
         workCtx.shadowBlur = 4;
-
         if (watermarkX === -1 || watermarkY === -1) {
-            watermarkX = workCanvas.width - 180;
-            watermarkY = workCanvas.height - 40;
+            watermarkX = workCanvas.width - 180; watermarkY = workCanvas.height - 40;
         }
         workCtx.fillText(wText, watermarkX, watermarkY);
         workCtx.shadowBlur = 0;
     }
-
-    if (!magicBrushActive) {
-        pCanvas.width = workCanvas.width;
-        pCanvas.height = workCanvas.height;
-        pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
-        pCtx.drawImage(workCanvas, 0, 0);
-        pCanvas.style.display = "block";
-    }
+    
+    pCanvas.width = workCanvas.width; pCanvas.height = workCanvas.height;
+    pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+    pCtx.drawImage(workCanvas, 0, 0);
+    pCanvas.style.display = "block";
     updateLiveStats();
 }
 
-document.getElementById("magicBtn").addEventListener("click", toggleMagicBrush);
+document.getElementById("wandBtn").addEventListener("click", () => {
+    if (cropModeActive) { alert("Disattiva prima il taglierino."); return; }
+    setTool(activeTool === 'wand' ? null : 'wand');
+});
 
-function toggleMagicBrush() {
-    if (cropModeActive) {
-        alert("Prima disattiva il taglierino cliccando sull'icona.");
-        return;
-    }
-    magicBrushActive = !magicBrushActive;
-    const instruction = document.getElementById("magicInstruction");
+document.getElementById("magicBtn").addEventListener("click", () => {
+    if (cropModeActive) { alert("Disattiva prima il taglierino."); return; }
+    setTool(activeTool === 'brush' ? null : 'brush');
+});
+
+function setTool(tool) {
+    activeTool = tool;
+    const wandBtn = document.getElementById("wandBtn");
+    const magicBtn = document.getElementById("magicBtn");
+    const tolGroup = document.getElementById("toleranceGroup");
     const brushGroup = document.getElementById("brushSizeGroup");
-    const button = document.getElementById("magicBtn");
+    const instruction = document.getElementById("toolInstruction");
 
-    if (magicBrushActive) {
-        updateBaseAndPreview();
+    wandBtn.classList.remove("active");
+    magicBtn.classList.remove("active");
+    tolGroup.classList.remove("active");
+    brushGroup.classList.remove("active");
+
+    if (tool === 'wand') {
+        wandBtn.classList.add("active");
+        tolGroup.classList.add("active");
         instruction.style.display = "block";
+        instruction.className = "instruction-box";
+        instruction.innerHTML = "🪄 <b>Bacchetta Magica Attiva:</b> Clicca su un punto dello sfondo per rimuovere il colore adiacente simile.";
+    } else if (tool === 'brush') {
+        magicBtn.classList.add("active");
         brushGroup.classList.add("active");
-        button.innerText = "✨ Disattiva Pennello Magico";
+        instruction.style.display = "block";
+        instruction.className = "instruction-box magic-active";
+        instruction.innerHTML = "🪄 <b>Gomma Manuale Attiva:</b> Trascina il mouse sull'immagine per cancellare liberamente.";
     } else {
-        instruction.style.display = "none";
-        brushGroup.classList.remove("active");
-        button.innerText = "🪄 Attiva Pennello Cancella Sfondo";
-        updateBaseAndPreview();
+        instruction.style.display = "block";
+        instruction.className = "instruction-box";
+        instruction.innerHTML = "ℹ️ Nessuno strumento di rimozione attivo. Clicca su 'Bacchetta Magica' o 'Gomma' per iniziare.";
     }
 }
 
-pCanvas.addEventListener("mousedown", function (e) {
-    if (magicBrushActive) {
+document.getElementById("toleranceInput").addEventListener("input", function() {
+    document.getElementById("toleranceVal").innerText = this.value;
+});
+
+// Eventi Click/Drag sul Canvas
+pCanvas.addEventListener("mousedown", (e) => {
+    const rect = pCanvas.getBoundingClientRect();
+    const x = Math.floor((e.clientX - rect.left) * (pCanvas.width / rect.width));
+    const y = Math.floor((e.clientY - rect.top) * (pCanvas.height / rect.height));
+
+    if (activeTool === 'wand') {
+        applyMagicWand(x, y);
+    } else if (activeTool === 'brush') {
         isDrawing = true;
-        eraseAt(e);
+        eraseAt(x, y);
     } else {
         isDraggingWatermark = true;
         moveWatermark(e);
     }
 });
 
-pCanvas.addEventListener("mousemove", function (e) {
-    if (magicBrushActive && isDrawing) {
-        eraseAt(e);
-    } else if (!magicBrushActive && isDraggingWatermark) {
+pCanvas.addEventListener("mousemove", (e) => {
+    if (activeTool === 'brush' && isDrawing) {
+        const rect = pCanvas.getBoundingClientRect();
+        const x = Math.floor((e.clientX - rect.left) * (pCanvas.width / rect.width));
+        const y = Math.floor((e.clientY - rect.top) * (pCanvas.height / rect.height));
+        eraseAt(x, y);
+    } else if (activeTool === null && isDraggingWatermark) {
         moveWatermark(e);
     }
 });
 
-window.addEventListener("mouseup", function () {
-    isDrawing = false;
-    isDraggingWatermark = false;
+window.addEventListener("mouseup", () => { 
+    if (isDrawing) {
+        pushState(); // Registra lo stato alla fine della cancellazione con gomma
+    }
+    isDrawing = false; 
+    isDraggingWatermark = false; 
 });
 
-function moveWatermark(e) {
-    const wText = document.getElementById("watermarkText").value;
-    if (!wText) return;
+// Algoritmo Bacchetta Magica
+function applyMagicWand(startX, startY) {
+    let imgData = baseCtx.getImageData(0, 0, baseProcessedCanvas.width, baseProcessedCanvas.height);
+    let data = imgData.data;
+    let width = baseProcessedCanvas.width;
+    let height = baseProcessedCanvas.height;
+    let tolerance = Number(document.getElementById("toleranceInput").value);
 
-    const rect = pCanvas.getBoundingClientRect();
-    const scaleX = pCanvas.width / rect.width;
-    const scaleY = pCanvas.height / rect.height;
-    watermarkX = (e.clientX - rect.left) * scaleX;
-    watermarkY = (e.clientY - rect.top) * scaleY;
+    let startIdx = (startY * width + startX) * 4;
+    let refR = data[startIdx], refG = data[startIdx + 1], refB = data[startIdx + 2], refA = data[startIdx + 3];
+
+    if (refA === 0) return;
+
+    let visited = new Uint8Array(width * height);
+    let queue = [{x: startX, y: startY}];
+    visited[startY * width + startX] = 1;
+
+    while (queue.length > 0) {
+        let {x, y} = queue.pop();
+        let idx = y * width + x;
+        let i = idx * 4;
+
+        let r = data[i], g = data[i + 1], b = data[i + 2];
+        let diff = Math.abs(r - refR) + Math.abs(g - refG) + Math.abs(b - refB);
+
+        if (diff <= tolerance * 1.5) {
+            data[i + 3] = 0;
+
+            const neighbors = [{x: x+1, y}, {x: x-1, y}, {x, y: y+1}, {x, y: y-1}];
+            for (let n of neighbors) {
+                if (n.x >= 0 && n.x < width && n.y >= 0 && n.y < height) {
+                    let nIdx = n.y * width + n.x;
+                    if (visited[nIdx] === 0) {
+                        visited[nIdx] = 1;
+                        queue.push(n);
+                    }
+                }
+            }
+        }
+    }
+
+    baseCtx.putImageData(imgData, 0, 0);
+    watermarkX = -1; watermarkY = -1;
+    pushState(); // Registra lo stato della bacchetta magica
     updateBaseAndPreview();
 }
 
-function eraseAt(e) {
+function moveWatermark(e) {
+    if (!document.getElementById("watermarkText").value) return;
     const rect = pCanvas.getBoundingClientRect();
-    const scaleX = pCanvas.width / rect.width;
-    const scaleY = pCanvas.height / rect.height;
-    const x = (e.clientX - rect.left) * scaleX;
-    const y = (e.clientY - rect.top) * scaleY;
-    const brushSize = Number(document.getElementById("brushSize").value);
-
-    pCtx.save();
-    pCtx.globalCompositeOperation = "destination-out";
-    pCtx.beginPath();
-    pCtx.arc(x, y, brushSize, 0, Math.PI * 2);
-    pCtx.fill();
-    pCtx.restore();
-    updateLiveStats();
+    watermarkX = (e.clientX - rect.left) * (pCanvas.width / rect.width);
+    watermarkY = (e.clientY - rect.top) * (pCanvas.height / rect.height);
+    updateBaseAndPreview();
 }
 
-document.getElementById("brushSize").addEventListener("input", function () {
-    document.getElementById("brushSizeVal").innerText = this.value;
-});
+function eraseAt(x, y) {
+    baseCtx.save();
+    baseCtx.globalCompositeOperation = "destination-out";
+    baseCtx.beginPath();
+    baseCtx.arc(x, y, Number(document.getElementById("brushSize").value), 0, Math.PI * 2);
+    baseCtx.fill();
+    baseCtx.restore();
+    updateBaseAndPreview();
+}
+
+document.getElementById("brushSize").addEventListener("input", function () { document.getElementById("brushSizeVal").innerText = this.value; });
 
 document.getElementById("rotateBtn").addEventListener("click", function () {
-    if (cropModeActive && cropper) {
-        cropper.rotate(90);
-    } else {
-        let tempCanvas = document.createElement("canvas");
-        let tempCtx = tempCanvas.getContext("2d");
-        tempCanvas.width = baseProcessedCanvas.height;
-        tempCanvas.height = baseProcessedCanvas.width;
-        
-        tempCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
+    if (cropModeActive && cropper) { cropper.rotate(90); }
+    else {
+        let tempC = document.createElement("canvas"), tempCtx = tempC.getContext("2d");
+        tempC.width = baseProcessedCanvas.height; tempC.height = baseProcessedCanvas.width;
+        tempCtx.translate(tempC.width / 2, tempC.height / 2);
         tempCtx.rotate(Math.PI / 2);
         tempCtx.drawImage(baseProcessedCanvas, -baseProcessedCanvas.width / 2, -baseProcessedCanvas.height / 2);
-
-        baseProcessedCanvas.width = tempCanvas.width;
-        baseProcessedCanvas.height = tempCanvas.height;
+        baseProcessedCanvas.width = tempC.width; baseProcessedCanvas.height = tempC.height;
         baseCtx.clearRect(0, 0, baseProcessedCanvas.width, baseProcessedCanvas.height);
-        baseCtx.drawImage(tempCanvas, 0, 0);
-
-        watermarkX = -1;
-        watermarkY = -1;
+        baseCtx.drawImage(tempC, 0, 0);
+        watermarkX = -1; watermarkY = -1;
+        pushState(); // Registra la rotazione
         updateBaseAndPreview();
     }
 });
 
-document.getElementById("resetBtn").addEventListener("click", resetEditor);
-
-function resetEditor() {
+document.getElementById("resetBtn").addEventListener("click", () => {
     document.getElementById("brightnessInput").value = 100;
     document.getElementById("contrastInput").value = 100;
     document.getElementById("saturationInput").value = 100;
     document.getElementById("watermarkText").value = "";
     document.getElementById("watermarkSizeInput").value = 24;
-    watermarkX = -1;
-    watermarkY = -1;
-    
-    if (magicBrushActive) toggleMagicBrush();
-    if (cropModeActive) {
-        cropModeActive = false;
-        cropToggleBtn.classList.remove("active");
-        document.getElementById("cropToggleText").innerText = "Attiva Taglierino";
-        if (cropper) {
-            cropper.destroy();
-            cropper = null;
-        }
-        imageToCrop.style.display = "none";
-        pCanvas.style.display = "block";
-    }
-
-    baseProcessedCanvas.width = currentRawImage.width;
-    baseProcessedCanvas.height = currentRawImage.height;
+    watermarkX = -1; watermarkY = -1;
+    setTool(null);
+    if (cropModeActive) { cropModeActive = false; cropToggleBtn.classList.remove("active"); document.getElementById("cropToggleText").innerText = "Attiva Taglierino"; if(cropper){cropper.destroy();cropper=null;} imageToCrop.style.display="none"; pCanvas.style.display="block"; }
+    baseProcessedCanvas.width = currentRawImage.width; baseProcessedCanvas.height = currentRawImage.height;
     baseCtx.clearRect(0, 0, baseProcessedCanvas.width, baseProcessedCanvas.height);
     baseCtx.drawImage(currentRawImage, 0, 0);
-
+    pushState();
     updateBaseAndPreview();
-}
-
-document.getElementById("brightnessInput").addEventListener("input", updateBaseAndPreview);
-document.getElementById("contrastInput").addEventListener("input", updateBaseAndPreview);
-document.getElementById("saturationInput").addEventListener("input", updateBaseAndPreview);
-document.getElementById("watermarkText").addEventListener("input", updateBaseAndPreview);
-document.getElementById("watermarkSizeInput").addEventListener("input", updateBaseAndPreview);
-document.getElementById("watermarkColor").addEventListener("input", updateBaseAndPreview);
-
-document.getElementById("qualityInput").addEventListener("input", function () {
-    document.getElementById("qualityVal").innerText = this.value;
-    updateLiveStats();
 });
 
+["brightnessInput", "contrastInput", "saturationInput", "watermarkText", "watermarkSizeInput", "watermarkColor"].forEach(id => {
+    document.getElementById(id).addEventListener("input", updateBaseAndPreview);
+});
+
+document.getElementById("qualityInput").addEventListener("input", function () { document.getElementById("qualityVal").innerText = this.value; updateLiveStats(); });
 document.getElementById("formatSelect").addEventListener("change", updateLiveStats);
 
 function updateLiveStats() {
     if (!pCanvas.width && !baseProcessedCanvas.width) return;
     const targetC = cropModeActive && cropper ? cropper.getCroppedCanvas() : pCanvas;
     if (!targetC) return;
-    
     document.getElementById("dimensionInfo").innerText = `Dimensioni: ${targetC.width} x ${targetC.height} px`;
-    const quality = Number(document.getElementById("qualityInput").value) / 100;
-    const format = document.getElementById("formatSelect").value;
-
     try {
-        const dataUrl = targetC.toDataURL(format, quality);
-        const sizeKB = Math.round(dataUrl.length * 0.75 / 1024);
+        const sizeKB = Math.round(targetC.toDataURL(document.getElementById("formatSelect").value, Number(document.getElementById("qualityInput").value) / 100).length * 0.75 / 1024);
         document.getElementById("sizeInfo").innerText = `Peso st.: ~${sizeKB} KB`;
-    } catch (error) {
-        console.error(error);
-    }
+    } catch(e) {}
 }
 
-document.getElementById("confirmBtn").addEventListener("click", confirmFinalImage);
-
-function confirmFinalImage() {
+document.getElementById("confirmBtn").addEventListener("click", function () {
     if (cropModeActive && cropper) {
         const croppedCanvas = cropper.getCroppedCanvas({ imageSmoothingEnabled: true, imageSmoothingQuality: "high" });
         if (croppedCanvas) {
-            baseProcessedCanvas.width = croppedCanvas.width;
-            baseProcessedCanvas.height = croppedCanvas.height;
+            baseProcessedCanvas.width = croppedCanvas.width; baseProcessedCanvas.height = croppedCanvas.height;
             baseCtx.clearRect(0, 0, baseProcessedCanvas.width, baseProcessedCanvas.height);
             baseCtx.drawImage(croppedCanvas, 0, 0);
+            pushState();
         }
-        cropper.destroy();
-        cropper = null;
-        cropModeActive = false;
-        cropToggleBtn.classList.remove("active");
-        document.getElementById("cropToggleText").innerText = "Attiva Taglierino";
-        imageToCrop.style.display = "none";
-        pCanvas.style.display = "block";
-        watermarkX = -1;
-        watermarkY = -1;
-        updateBaseAndPreview();
+        cropper.destroy(); cropper = null; cropModeActive = false;
+        cropToggleBtn.classList.remove("active"); document.getElementById("cropToggleText").innerText = "Attiva Taglierino";
+        imageToCrop.style.display = "none"; pCanvas.style.display = "block";
+        watermarkX = -1; watermarkY = -1; updateBaseAndPreview();
     }
-
-    if (!pCanvas.width) {
-        alert("Prima carica un'immagine.");
-        return;
-    }
-    const quality = Number(document.getElementById("qualityInput").value) / 100;
+    if (!pCanvas.width) { alert("Prima carica un'immagine."); return; }
     const format = document.getElementById("formatSelect").value;
-    const dataUrl = pCanvas.toDataURL(format, quality);
-
+    const dataUrl = pCanvas.toDataURL(format, Number(document.getElementById("qualityInput").value) / 100);
     document.getElementById("finalPreviewImg").src = dataUrl;
-    let ext = format.split("/")[1];
-    if (ext === "jpeg") ext = "jpg";
-
+    let ext = format.split("/")[1] === "jpeg" ? "jpg" : format.split("/")[1];
     const downloadBtn = document.getElementById("downloadBtn");
-    downloadBtn.href = dataUrl;
-    downloadBtn.download = `${originalFileName}-modificato.${ext}`;
-
-    const sizeKB = Math.round(dataUrl.length * 0.75 / 1024);
-    document.getElementById("finalStats").innerText = `Formato: ${ext.toUpperCase()} | Dimensioni: ${pCanvas.width}x${pCanvas.height}px | Peso: ~${sizeKB} KB`;
-
+    downloadBtn.href = dataUrl; downloadBtn.download = `${originalFileName}-modificato.${ext}`;
+    document.getElementById("finalStats").innerText = `Formato: ${ext.toUpperCase()} | Dimensioni: ${pCanvas.width}x${pCanvas.height}px | Peso: ~${Math.round(dataUrl.length * 0.75 / 1024)} KB`;
     editorPanel.style.display = "none";
     document.getElementById("resultBox").style.display = "block";
-}
-
-dropZone.addEventListener("dragover", function (e) {
-    e.preventDefault();
-    dropZone.style.borderColor = "var(--primary)";
 });
 
-dropZone.addEventListener("dragleave", function () {
-    dropZone.style.borderColor = "var(--border)";
-});
-
-dropZone.addEventListener("drop", function (e) {
-    e.preventDefault();
-    dropZone.style.borderColor = "var(--border)";
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-        handleImage({ files: files });
-    }
+dropZone.addEventListener("dragover", (e) => { e.preventDefault(); dropZone.style.borderColor = "var(--primary)"; });
+dropZone.addEventListener("dragleave", () => { dropZone.style.borderColor = "var(--border)"; });
+dropZone.addEventListener("drop", (e) => {
+    e.preventDefault(); dropZone.style.borderColor = "var(--border)";
+    if (e.dataTransfer.files.length > 0) handleImage({ files: e.dataTransfer.files });
 });
 </script>
-
 </body>
 </html>
