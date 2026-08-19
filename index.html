@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Snaplix PRO - Editor Immagini</title>
-    <!-- Favicon personalizzata -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%233b82f6'/><stop offset='100%' stop-color='%238b5cf6'/></linearGradient></defs><rect width='32' height='32' rx='8' fill='url(%23grad)'/><g transform='translate(4, 4)' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' fill='none'><path d='M17 12V6a1.5 1.5 0 0 0-.75-1.3l-5-3a1.5 1.5 0 0 0-1.5 0l-5 3A1.5 1.5 0 0 0 4 6v6a1.5 1.5 0 0 0 .75 1.3l5 3a1.5 1.5 0 0 0 1.5 0l5-3A1.5 1.5 0 0 0 17 12z'></path><polyline points='2.45 5.22 9 9.01 15.55 5.22'></polyline><line x1='9' y1='16.56' x2='9' y2='9.01'></line></g></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z'></path><polyline points='3.27 6.96 12 12.01 20.73 6.96'></polyline><line x1='12' y1='22.08' x2='12' y2='12'></line></svg>">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -606,15 +605,12 @@ window.addEventListener("mousemove", (e) => {
     const rect = pCanvas.getBoundingClientRect();
     const x = Math.floor(((e.clientX - rect.left) / currentZoom) * (pCanvas.width / rect.width));
     const y = Math.floor(((e.clientY - rect.top) / currentZoom) * (pCanvas.height / rect.height));
-
-    if (activeTool === 'brush' && e.target === pCanvas) {
-        brushCursor.style.display = "block";
+    
+    if (activeTool === 'brush') {
         brushCursor.style.left = `${e.clientX - imgContainer.getBoundingClientRect().left}px`;
         brushCursor.style.top = `${e.clientY - imgContainer.getBoundingClientRect().top}px`;
         if (isDrawing) eraseAt(x, y);
-    }
-
-    if (draggingTextIndex !== -1) {
+    } else if (draggingTextIndex !== -1) {
         textElements[draggingTextIndex].x = x - dragOffsetX;
         textElements[draggingTextIndex].y = y - dragOffsetY;
         updateBaseAndPreview();
@@ -626,151 +622,138 @@ window.addEventListener("mousemove", (e) => {
 });
 
 window.addEventListener("mouseup", () => {
-    if (isDrawing || draggingTextIndex !== -1) {
-        pushState();
-    }
-    isDrawing = false;
-    draggingTextIndex = -1;
+    if (isDrawing) { isDrawing = false; pushState(); }
+    if (draggingTextIndex !== -1) { draggingTextIndex = -1; pushState(); }
     isPanning = false;
 });
 
 function eraseAt(x, y) {
-    const size = Number(document.getElementById("brushSize").value);
-    let ctx = baseProcessedCanvas.getContext("2d");
-    ctx.save();
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.beginPath();
-    ctx.arc(x, y, size, 0, Math.PI * 2, false);
-    ctx.fill();
-    ctx.restore();
+    const brushSize = Number(document.getElementById("brushSize").value);
+    baseCtx.save();
+    baseCtx.globalCompositeOperation = "destination-out";
+    baseCtx.beginPath();
+    baseCtx.arc(x, y, brushSize, 0, Math.PI * 2);
+    baseCtx.fill();
+    baseCtx.restore();
     updateBaseAndPreview();
 }
 
-function applyMagicWand(targetX, targetY) {
+function applyMagicWand(startXCoord, startYCoord) {
     const tolerance = Number(document.getElementById("toleranceInput").value);
-    let ctx = baseProcessedCanvas.getContext("2d");
-    let imgData = ctx.getImageData(0, 0, baseProcessedCanvas.width, baseProcessedCanvas.height);
-    let data = imgData.data;
-    let width = baseProcessedCanvas.width;
-    let height = baseProcessedCanvas.height;
+    const imgWidth = baseProcessedCanvas.width;
+    const imgHeight = baseProcessedCanvas.height;
+    const imgData = baseCtx.getImageData(0, 0, imgWidth, imgHeight);
+    const data = imgData.data;
 
-    let targetIdx = (targetY * width + targetX) * 4;
-    let tr = data[targetIdx], tg = data[targetIdx + 1], tb = data[targetIdx + 2], ta = data[targetIdx + 3];
+    const startIndex = (startYCoord * imgWidth + startXCoord) * 4;
+    const targetR = data[startIndex];
+    const targetG = data[startIndex + 1];
+    const targetB = data[startIndex + 2];
+    const targetA = data[startIndex + 3];
 
-    let queue = [[targetX, targetY]];
-    let visited = new Uint8Array(width * height);
-    visited[targetY * width + targetX] = 1;
+    if (targetA === 0) return;
+
+    const queue = [[startXCoord, startYCoord]];
+    const visited = new Uint8Array(imgWidth * imgHeight);
+
+    function colorMatch(idx) {
+        const r = data[idx], g = data[idx + 1], b = data[idx + 2], a = data[idx + 3];
+        return Math.abs(r - targetR) <= tolerance &&
+               Math.abs(g - targetG) <= tolerance &&
+               Math.abs(b - targetB) <= tolerance &&
+               Math.abs(a - targetA) <= tolerance;
+    }
 
     while (queue.length > 0) {
-        let [cx, cy] = queue.pop();
-        let idx = (cy * width + cx) * 4;
+        const [cx, cy] = queue.pop();
+        if (cx < 0 || cx >= imgWidth || cy < 0 || cy >= imgHeight) continue;
+        const vIndex = cy * imgWidth + cx;
+        if (visited[vIndex]) continue;
+        visited[vIndex] = 1;
 
-        let r = data[idx], g = data[idx + 1], b = data[idx + 2], a = data[idx + 3];
-
-        if (Math.abs(r - tr) <= tolerance && Math.abs(g - tg) <= tolerance && Math.abs(b - tb) <= tolerance && Math.abs(a - ta) <= tolerance) {
-            data[idx + 3] = 0;
-
-            let neighbors = [[cx + 1, cy], [cx - 1, cy], [cx, cy + 1], [cx, cy - 1]];
-            for (let [nx, ny] of neighbors) {
-                if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-                    let nPos = ny * width + nx;
-                    if (!visited[nPos]) {
-                        visited[nPos] = 1;
-                        queue.push([nx, ny]);
-                    }
-                }
-            }
+        const pIndex = vIndex * 4;
+        if (colorMatch(pIndex)) {
+            data[pIndex + 3] = 0; 
+            queue.push([cx + 1, cy], [cx - 1, cy], [cx, cy + 1], [cx, cy - 1]);
         }
     }
 
-    ctx.putImageData(imgData, 0, 0);
+    baseCtx.putImageData(imgData, 0, 0);
     pushState();
     updateBaseAndPreview();
 }
 
 document.getElementById("rotateBtn").addEventListener("click", () => {
+    if (cropModeActive) return;
     let tempCanvas = document.createElement("canvas");
-    tempCanvas.width = baseProcessedCanvas.width;
-    tempCanvas.height = baseProcessedCanvas.height;
-    let tCtx = tempCanvas.getContext("2d");
-    tCtx.drawImage(baseProcessedCanvas, 0, 0);
-
-    baseProcessedCanvas.width = tempCanvas.height;
-    baseProcessedCanvas.height = tempCanvas.width;
+    tempCanvas.width = baseProcessedCanvas.height;
+    tempCanvas.height = baseProcessedCanvas.width;
+    let tempCtx = tempCanvas.getContext("2d");
+    tempCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
+    tempCtx.rotate(Math.PI / 2);
+    tempCtx.drawImage(baseProcessedCanvas, -baseProcessedCanvas.width / 2, -baseProcessedCanvas.height / 2);
+    
+    baseProcessedCanvas.width = tempCanvas.width;
+    baseProcessedCanvas.height = tempCanvas.height;
     baseCtx.clearRect(0, 0, baseProcessedCanvas.width, baseProcessedCanvas.height);
-    baseCtx.save();
-    baseCtx.translate(baseProcessedCanvas.width / 2, baseProcessedCanvas.height / 2);
-    baseCtx.rotate(Math.PI / 2);
-    baseCtx.drawImage(tempCanvas, -tempCanvas.width / 2, -tempCanvas.height / 2);
-    baseCtx.restore();
-
+    baseCtx.drawImage(tempCanvas, 0, 0);
     pushState();
     resetZoomAndPan();
     updateBaseAndPreview();
 });
 
 document.getElementById("resetBtn").addEventListener("click", () => {
-    if (confirm("Vuoi azzerare tutte le modifiche e ricominciare?")) {
-        let stateCanvas = historyStack[0];
-        baseProcessedCanvas.width = stateCanvas.width;
-        baseProcessedCanvas.height = stateCanvas.height;
+    if (confirm("Vuoi davvero resettare tutte le modifiche?")) {
+        baseProcessedCanvas.width = currentRawImage.width;
+        baseProcessedCanvas.height = currentRawImage.height;
         baseCtx.clearRect(0, 0, baseProcessedCanvas.width, baseProcessedCanvas.height);
-        baseCtx.drawImage(stateCanvas, 0, 0);
-        textElements = [];
-        renderTextControls();
+        baseCtx.drawImage(currentRawImage, 0, 0);
         document.getElementById("brightnessInput").value = 100;
         document.getElementById("contrastInput").value = 100;
         document.getElementById("saturationInput").value = 100;
-        historyStack = [stateCanvas];
-        historyIndex = 0;
-        updateHistoryButtons();
+        textElements = [];
+        renderTextControls();
+        historyStack = [];
+        historyIndex = -1;
+        pushState();
         setTool(null);
         resetZoomAndPan();
         updateBaseAndPreview();
     }
 });
 
-["brightnessInput", "contrastInput", "saturationInput"].forEach(id => {
-    document.getElementById(id).addEventListener("input", updateBaseAndPreview);
-});
-
-document.getElementById("qualityInput").addEventListener("input", function() {
-    document.getElementById("qualityVal").innerText = this.value;
-});
-
 function updateLiveStats() {
-    document.getElementById("dimensionInfo").innerText = `Dimensioni: ${pCanvas.width} x ${pCanvas.height} px`;
-    let quality = document.getElementById("qualityInput").value / 100;
-    let format = document.getElementById("formatSelect").value;
-    let dataUrl = pCanvas.toDataURL(format, quality);
-    let head = 'data:' + format + ';base64,';
-    let sizeKB = Math.round((dataUrl.length - head.length) * 3/4 / 1024);
-    document.getElementById("sizeInfo").innerText = `Peso st.: ~${sizeKB} KB`;
+    document.getElementById("dimensionInfo").innerText = `Dimensioni: ${baseProcessedCanvas.width} x ${baseProcessedCanvas.height} px`;
+    pCanvas.toBlob(blob => {
+        if (blob) document.getElementById("sizeInfo").innerText = `Peso st.: ${Math.round(blob.size / 1024)} KB`;
+    }, document.getElementById("formatSelect").value, Number(document.getElementById("qualityInput").value) / 100);
 }
 
+document.getElementById("brightnessInput").addEventListener("input", updateBaseAndPreview);
+document.getElementById("contrastInput").addEventListener("input", updateBaseAndPreview);
+document.getElementById("saturationInput").addEventListener("input", updateBaseAndPreview);
+document.getElementById("qualityInput").addEventListener("input", function() { document.getElementById("qualityVal").innerText = this.value; updateLiveStats(); });
+document.getElementById("formatSelect").addEventListener("change", updateLiveStats);
+
 document.getElementById("confirmBtn").addEventListener("click", () => {
-    if (cropModeActive) {
-        cropToggleBtn.click();
-    }
+    if (cropModeActive) { cropToggleBtn.click(); }
     const format = document.getElementById("formatSelect").value;
-    const quality = document.getElementById("qualityInput").value / 100;
-    const finalDataUrl = pCanvas.toDataURL(format, quality);
-
-    document.getElementById("editorPanel").style.display = "none";
-    const resultBox = document.getElementById("resultBox");
-    resultBox.style.display = "block";
-    document.getElementById("finalPreviewImg").src = finalDataUrl;
-
-    let ext = format.split('/')[1];
-    if (ext === 'jpeg') ext = 'jpg';
-    const downloadBtn = document.getElementById("downloadBtn");
-    downloadBtn.href = finalDataUrl;
-    downloadBtn.download = `${originalFileName}_modificato.${ext}`;
-
-    let sizeKB = Math.round((finalDataUrl.length - ('data:' + format + ';base64,').length) * 3/4 / 1024);
-    document.getElementById("finalStats").innerText = `Risoluzione finale: ${pCanvas.width} x ${pCanvas.height} px | Formato: ${ext.toUpperCase()} | Peso: ~${sizeKB} KB`;
+    const quality = Number(document.getElementById("qualityInput").value) / 100;
+    
+    pCanvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        document.getElementById("finalPreviewImg").src = url;
+        const ext = format === 'image/jpeg' ? 'jpg' : format === 'image/webp' ? 'webp' : 'png';
+        const downloadLink = document.getElementById("downloadBtn");
+        downloadLink.href = url;
+        downloadLink.download = `${originalFileName}_snaplix.${ext}`;
+        document.getElementById("finalStats").innerText = `Formato: ${ext.toUpperCase()} | Dimensioni: ${pCanvas.width}x${pCanvas.height}px | Peso: ${Math.round(blob.size / 1024)} KB`;
+        
+        editorPanel.style.display = "none";
+        document.getElementById("resultBox").style.display = "block";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, format, quality);
 });
 </script>
-
 </body>
 </html>
